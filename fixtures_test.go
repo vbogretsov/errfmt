@@ -296,7 +296,7 @@ var userRule, _ = validation.Struct(&User{}, ``, []validation.Field{
 		Rules: []validation.Rule{
 			func(v interface{}) error {
 				u := v.(*User)
-				if strings.Compare(u.Password, u.PasswordConfirmation) != 0 {
+				if u.Password != u.PasswordConfirmation {
 					return errors.New(ePwConfirmation)
 				}
 				return nil
