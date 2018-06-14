@@ -13,7 +13,7 @@ type Errors validation.Errors
 // MarshalJSON serializes validation errors into JSON.
 func (es Errors) MarshalJSON() ([]byte, error) {
 	path := ""
-	errs := []interface{}{}
+	errs := []jsonError{}
 
 	for _, e := range es {
 		marshal(e, path, &errs)
@@ -27,7 +27,7 @@ type jsonError struct {
 	Error string `json:"error"`
 }
 
-func marshal(er error, path string, errs *[]interface{}) {
+func marshal(er error, path string, errs *[]jsonError) {
 	switch x := er.(type) {
 	case validation.Errors:
 		for _, e := range []error(x) {
