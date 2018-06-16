@@ -40,3 +40,18 @@ func NotNil(msg string) validation.Rule {
 		return nil
 	}
 }
+
+// In creates a validator to chech wheter an item belongs to the set provided.
+func In(values []interface{}, msg string) validation.Rule {
+	set := map[interface{}]bool{}
+	for _, v := range values {
+		set[v] = true
+	}
+
+	return func(v interface{}) error {
+		if !set[v] {
+			return fmt.Errorf(msg, v, values)
+		}
+		return nil
+	}
+}
