@@ -1,6 +1,7 @@
 package validation
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -60,4 +61,14 @@ type MapError struct {
 // Error returns string representation of a MapError.
 func (e MapError) Error() string {
 	return fmt.Sprintf("%v: %s", e.Key, e.Errors.Error())
+}
+
+// Error creates validation errros from a single error.
+func Error(text string) Errors {
+	return Errors([]error{errors.New(text)})
+}
+
+// Errorf creates validation errros from a single error.
+func Errorf(format string, args ...interface{}) Errors {
+	return Errors([]error{fmt.Errorf(format, args...)})
 }
