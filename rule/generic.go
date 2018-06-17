@@ -49,8 +49,15 @@ func In(values []interface{}, msg string) validation.Rule {
 	}
 
 	return func(v interface{}) error {
-		if !set[v] {
-			return fmt.Errorf(msg, v, values)
+		vl := reflect.ValueOf(v)
+		if vl.Type().Kind() != reflect.Ptr {
+			return unexpectedType(v)
+		}
+		vl = vl.Elem()
+
+		k := vl.Interface()
+		if !set[k] {
+			return fmt.Errorf(msg, k, values)
 		}
 		return nil
 	}

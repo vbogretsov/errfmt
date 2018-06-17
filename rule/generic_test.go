@@ -34,12 +34,16 @@ func TestIn(t *testing.T) {
 	set := []interface{}{"a1", "b2", "c3"}
 	fun := rule.In(set, msg)
 
+	t.Run("PanicIfInvalidType", func(t *testing.T) {
+		assertInternalError(t, fun("xxx"))
+	})
 	t.Run("ErrorIfNotIn", func(t *testing.T) {
 		val := "d4"
 		exp := fmt.Errorf(msg, val, set)
-		assertError(t, exp, fun(val))
+		assertError(t, exp, fun(&val))
 	})
 	t.Run("OkIfIn", func(t *testing.T) {
-		assertOk(t, fun("b2"))
+		val := "b2"
+		assertOk(t, fun(&val))
 	})
 }
