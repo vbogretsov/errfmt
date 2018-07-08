@@ -10,7 +10,7 @@ import (
 
 func unexpectedType(v interface{}) validation.Panic {
 	return validation.Panic{
-		Err: fmt.Sprintf("unexpected type: %v", reflect.TypeOf(v)),
+		Err: fmt.Errorf("unexpected type: %v", reflect.TypeOf(v)),
 	}
 }
 

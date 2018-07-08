@@ -1,6 +1,7 @@
 package rule_test
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 
@@ -99,7 +100,7 @@ func TestSliceEach(t *testing.T) {
 	t.Run("PanicIfValidatorPanics", func(t *testing.T) {
 		failed := rule.SliceEach(userIter, []validation.Rule{
 			func(v interface{}) error {
-				return validation.Panic{Err: "test"}
+				return validation.Panic{Err: errors.New("test")}
 			},
 		})
 		v := []User{{}}

@@ -1,6 +1,7 @@
 package rule
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 	"time"
@@ -8,8 +9,8 @@ import (
 	"github.com/vbogretsov/go-validation"
 )
 
-const (
-	eTypeMismatch = "between parameters should have same type"
+var (
+	eTypeMismatch = errors.New("between parameters should have same type")
 )
 
 func int64rule(fn func(int64) error) validation.Rule {

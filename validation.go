@@ -1,12 +1,13 @@
 package validation
 
 import (
+	"errors"
 	"reflect"
 )
 
 var (
-	errorArgs = Panic{Err: "expected pointer to struct"}
-	errorAttr = Panic{Err: "Attr must return a pointer"}
+	errorArgs = Panic{Err: errors.New("expected pointer to struct")}
+	errorAttr = Panic{Err: errors.New("Attr must return a pointer")}
 )
 
 // Rule represents a validation function.

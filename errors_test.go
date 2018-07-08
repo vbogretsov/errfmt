@@ -9,7 +9,7 @@ import (
 
 func TestPanic(t *testing.T) {
 	msg := "test"
-	err := validation.Panic{Err: msg}
+	err := validation.Panic{Err: errors.New(msg)}
 
 	if err.Error() != msg {
 		t.Errorf("expected '%s' but was '%s'", msg, err.Error())

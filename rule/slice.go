@@ -120,7 +120,7 @@ func SliceUnique(iter SliceIter, msg string) validation.Rule {
 		for i := 0; i < n; i++ {
 			p := reflect.ValueOf(iter(v, i))
 			if p.Type().Kind() != reflect.Ptr {
-				return validation.Panic{Err: fmt.Sprintf(eNotPtr, i)}
+				return validation.Panic{Err: fmt.Errorf(eNotPtr, i)}
 			}
 
 			k := reflect.Indirect(p).Interface()

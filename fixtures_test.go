@@ -11,13 +11,16 @@ import (
 
 const (
 	eRequired        = "string cannot be blank"
-	eEpxectedStrPtr  = "expected string pointer"
 	eStartsUpperCase = "should start with upper case"
 	eEmail           = "invalid email"
 	eMinLen          = "should have at least %d characters"
 	eZipCode         = "should contain only letters"
 	ePwConfirmation  = "password confirmation does not math the password"
 	minLen           = 10
+)
+
+var (
+	eEpxectedStrPtr = errors.New("expected string pointer")
 )
 
 type Address struct {
@@ -254,7 +257,7 @@ var addressRuleValidatorPanic, _ = validation.Struct(&Address{}, ``, []validatio
 		Rules: []validation.Rule{
 			stringRequired,
 			func(v interface{}) error {
-				return validation.Panic{Err: "test panic"}
+				return validation.Panic{Err: errors.New("test panic")}
 			},
 		},
 	},

@@ -7,14 +7,13 @@ import (
 )
 
 // Panic represents an internal error of schema package.
-// TODO(vbogretsov): replace Err to error.
 type Panic struct {
-	Err string
+	Err error
 }
 
 // Error rerurns string representation of the internal error.
 func (e Panic) Error() string {
-	return e.Err
+	return e.Err.Error()
 }
 
 // Errors represents errors collection.
