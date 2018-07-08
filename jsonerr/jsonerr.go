@@ -22,6 +22,11 @@ func (es Errors) MarshalJSON() ([]byte, error) {
 	return json.Marshal(errs)
 }
 
+// Error returns error string representation.
+func (es Errors) Error() string {
+	return validation.Errors(es).Error()
+}
+
 type jsonError struct {
 	Path  string `json:"path,omitempty"`
 	Error string `json:"error"`
