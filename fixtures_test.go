@@ -101,21 +101,20 @@ var (
 			validation.StructError{
 				Field: "Address",
 				Errors: []error{
-					validation.Errors([]error{
-						validation.StructError{
-							Field: "Country",
-							Errors: []error{
-								errors.New(eRequired),
-								errors.New(eStartsUpperCase),
-							},
+
+					validation.StructError{
+						Field: "Country",
+						Errors: []error{
+							errors.New(eRequired),
+							errors.New(eStartsUpperCase),
 						},
-						validation.StructError{
-							Field: "ZipCode",
-							Errors: []error{
-								errors.New(eRequired),
-							},
+					},
+					validation.StructError{
+						Field: "ZipCode",
+						Errors: []error{
+							errors.New(eRequired),
 						},
-					}),
+					},
 				},
 			},
 		}),
@@ -149,20 +148,18 @@ var (
 			validation.StructError{
 				Field: "Address",
 				Errors: []error{
-					validation.Errors([]error{
-						validation.StructError{
-							Field: "Country",
-							Errors: []error{
-								errors.New(eStartsUpperCase),
-							},
+					validation.StructError{
+						Field: "Country",
+						Errors: []error{
+							errors.New(eStartsUpperCase),
 						},
-						validation.StructError{
-							Field: "ZipCode",
-							Errors: []error{
-								errors.New(eZipCode),
-							},
+					},
+					validation.StructError{
+						Field: "ZipCode",
+						Errors: []error{
+							errors.New(eZipCode),
 						},
-					}),
+					},
 				},
 			},
 		}),

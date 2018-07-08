@@ -112,7 +112,13 @@ func (s structRule) validate(v interface{}) error {
 				if _, ok := err.(Panic); ok {
 					return err
 				}
-				fe = append(fe, err)
+				if e, ok := err.(Errors); ok {
+					for _, i := range e {
+						fe = append(fe, i)
+					}
+				} else {
+					fe = append(fe, err)
+				}
 			}
 		}
 
