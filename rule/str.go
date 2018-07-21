@@ -1,13 +1,18 @@
 package rule
 
 import (
-	"errors"
-	"fmt"
 	"regexp"
 
 	"github.com/asaskevich/govalidator"
 
 	"github.com/vbogretsov/go-validation"
+)
+
+var (
+	// ParamMaxLen is the name of string min length parameter.
+	ParamStrMaxLen = "maxLen"
+	// ParamMaxLen is the name of string max length parameter.
+	ParamStrMinLen = "minLen"
 )
 
 var (
@@ -30,8 +35,6 @@ var (
 	// TODO(vbogretsov): import other string rules.
 )
 
-// TODO(vbogretsov): maybe avoid error formatting.
-
 func strrule(fn func(*string) error) validation.Rule {
 	return func(v interface{}) error {
 		s, ok := v.(*string)
@@ -46,7 +49,7 @@ func fromfn(fn func(string) bool) func(string) validation.Rule {
 	return func(msg string) validation.Rule {
 		return strrule(func(s *string) error {
 			if !fn(*s) {
-				return errors.New(msg)
+				return validation.Error{Message: msg}
 			}
 			return nil
 		})
@@ -59,7 +62,10 @@ func StrLen(min, max int, msg string) validation.Rule {
 	return strrule(func(s *string) error {
 		n := len(*s)
 		if n < min || n > max {
-			return fmt.Errorf(msg, min, max)
+			return validation.Error{Message: msg, Params: validation.Params{
+				ParamStrMinLen: min,
+				ParamStrMaxLen: max,
+			}}
 		}
 		return nil
 	})
@@ -69,7 +75,7 @@ func StrLen(min, max int, msg string) validation.Rule {
 func StrRequired(msg string) validation.Rule {
 	return strrule(func(s *string) error {
 		if *s == "" {
-			return errors.New(msg)
+			return validation.Error{Message: msg}
 		}
 		return nil
 	})
@@ -82,7 +88,9 @@ func StrMinLen(min int, msg string) validation.Rule {
 	return strrule(func(s *string) error {
 		n := len(*s)
 		if n < min {
-			return fmt.Errorf(msg, min)
+			return validation.Error{Message: msg, Params: validation.Params{
+				ParamStrMinLen: min,
+			}}
 		}
 		return nil
 	})
@@ -92,11 +100,12 @@ func StrMinLen(min int, msg string) validation.Rule {
 // than the value provided. The 'msg' parameter should be a format string with
 // 1 slot for int.
 func StrMaxLen(max int, msg string) validation.Rule {
-	emsg := fmt.Sprintf(msg, max)
 	return strrule(func(s *string) error {
 		n := len(*s)
 		if max < n {
-			return errors.New(emsg)
+			return validation.Error{Message: msg, Params: validation.Params{
+				ParamStrMaxLen: max,
+			}}
 		}
 		return nil
 	})
@@ -107,7 +116,7 @@ func StrMaxLen(max int, msg string) validation.Rule {
 func StrMatch(pattern *regexp.Regexp, msg string) validation.Rule {
 	return strrule(func(s *string) error {
 		if !pattern.MatchString(*s) {
-			return errors.New(msg)
+			return validation.Error{Message: msg}
 		}
 		return nil
 	})

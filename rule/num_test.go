@@ -1,18 +1,26 @@
 package rule_test
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/require"
+
+	"github.com/vbogretsov/go-validation"
 	"github.com/vbogretsov/go-validation/rule"
 )
 
 func TestMin(t *testing.T) {
 	t.Run("Int", func(t *testing.T) {
-		msg := "cannot be less than %v"
+		msg := "ErrMin"
 		min := 10
 		fun := rule.Min(min, msg)
+		exp := validation.Error{
+			Message: msg,
+			Params: validation.Params{
+				rule.ParamNumMin: min,
+			},
+		}
 
 		t.Run("PanicIfNotPtr", func(t *testing.T) {
 			assertInternalError(t, fun(10))
@@ -23,21 +31,27 @@ func TestMin(t *testing.T) {
 		})
 		t.Run("ErrorIfLt", func(t *testing.T) {
 			v := min - 1
-			assertError(t, fmt.Errorf(msg, min), fun(&v))
+			require.Equal(t, exp, fun(&v))
 		})
 		t.Run("OkIfEq", func(t *testing.T) {
 			v := min
-			assertOk(t, fun(&v))
+			require.Nil(t, fun(&v))
 		})
 		t.Run("OkIfGt", func(t *testing.T) {
 			v := min + 1
-			assertOk(t, fun(&v))
+			require.Nil(t, fun(&v))
 		})
 	})
 	t.Run("Uint", func(t *testing.T) {
-		msg := "cannot be less than %v"
+		msg := "ErrMin"
 		min := uint(10)
 		fun := rule.Min(min, msg)
+		exp := validation.Error{
+			Message: msg,
+			Params: validation.Params{
+				rule.ParamNumMin: min,
+			},
+		}
 
 		t.Run("PanicIfNotPtr", func(t *testing.T) {
 			assertInternalError(t, fun(10))
@@ -48,7 +62,7 @@ func TestMin(t *testing.T) {
 		})
 		t.Run("ErrorIfLt", func(t *testing.T) {
 			v := min - 1
-			assertError(t, fmt.Errorf(msg, min), fun(&v))
+			require.Equal(t, exp, fun(&v))
 		})
 		t.Run("OkIfEq", func(t *testing.T) {
 			v := min
@@ -60,9 +74,15 @@ func TestMin(t *testing.T) {
 		})
 	})
 	t.Run("Float", func(t *testing.T) {
-		msg := "cannot be less than %v"
+		msg := "ErrMin"
 		min := 10.0
 		fun := rule.Min(min, msg)
+		exp := validation.Error{
+			Message: msg,
+			Params: validation.Params{
+				rule.ParamNumMin: min,
+			},
+		}
 
 		t.Run("PanicIfNotPtr", func(t *testing.T) {
 			assertInternalError(t, fun(10))
@@ -73,7 +93,7 @@ func TestMin(t *testing.T) {
 		})
 		t.Run("ErrorIfLt", func(t *testing.T) {
 			v := min - 1
-			assertError(t, fmt.Errorf(msg, min), fun(&v))
+			require.Equal(t, exp, fun(&v))
 		})
 		t.Run("OkIfEq", func(t *testing.T) {
 			v := min
@@ -85,9 +105,15 @@ func TestMin(t *testing.T) {
 		})
 	})
 	t.Run("Time", func(t *testing.T) {
-		msg := "cannot be less than %v"
+		msg := "ErrMin"
 		min := time.Date(2018, 2, 9, 0, 0, 0, 0, time.Local)
 		fun := rule.Min(min, msg)
+		exp := validation.Error{
+			Message: msg,
+			Params: validation.Params{
+				rule.ParamNumMin: min,
+			},
+		}
 
 		t.Run("PanicIfNotPtr", func(t *testing.T) {
 			assertInternalError(t, fun(10))
@@ -98,7 +124,7 @@ func TestMin(t *testing.T) {
 		})
 		t.Run("ErrorIfLt", func(t *testing.T) {
 			v := time.Date(2018, 2, 8, 0, 0, 0, 0, time.Local)
-			assertError(t, fmt.Errorf(msg, min), fun(&v))
+			require.Equal(t, exp, fun(&v))
 		})
 		t.Run("OkIfEq", func(t *testing.T) {
 			v := min
@@ -111,11 +137,17 @@ func TestMin(t *testing.T) {
 	})
 }
 
-func TestNumMax(t *testing.T) {
+func TestMax(t *testing.T) {
 	t.Run("Int", func(t *testing.T) {
-		msg := "cannot be great than %v"
+		msg := "ErrMax"
 		max := 10
 		fun := rule.Max(max, msg)
+		exp := validation.Error{
+			Message: msg,
+			Params: validation.Params{
+				rule.ParamNumMax: max,
+			},
+		}
 
 		t.Run("PanicIfNotPtr", func(t *testing.T) {
 			assertInternalError(t, fun(10))
@@ -126,7 +158,7 @@ func TestNumMax(t *testing.T) {
 		})
 		t.Run("ErrorIfGt", func(t *testing.T) {
 			v := max + 1
-			assertError(t, fmt.Errorf(msg, max), fun(&v))
+			require.Equal(t, exp, fun(&v))
 		})
 		t.Run("OkIfEq", func(t *testing.T) {
 			v := max
@@ -138,9 +170,15 @@ func TestNumMax(t *testing.T) {
 		})
 	})
 	t.Run("Uint", func(t *testing.T) {
-		msg := "cannot be great than %v"
+		msg := "ErrMax"
 		max := uint(10)
 		fun := rule.Max(max, msg)
+		exp := validation.Error{
+			Message: msg,
+			Params: validation.Params{
+				rule.ParamNumMax: max,
+			},
+		}
 
 		t.Run("PanicIfNotPtr", func(t *testing.T) {
 			assertInternalError(t, fun(10))
@@ -151,7 +189,7 @@ func TestNumMax(t *testing.T) {
 		})
 		t.Run("ErrorIfGt", func(t *testing.T) {
 			v := max + 1
-			assertError(t, fmt.Errorf(msg, max), fun(&v))
+			require.Equal(t, exp, fun(&v))
 		})
 		t.Run("OkIfEq", func(t *testing.T) {
 			v := max
@@ -163,9 +201,15 @@ func TestNumMax(t *testing.T) {
 		})
 	})
 	t.Run("Float", func(t *testing.T) {
-		msg := "cannot be great than %v"
+		msg := "ErrMax"
 		max := 10.0
 		fun := rule.Max(max, msg)
+		exp := validation.Error{
+			Message: msg,
+			Params: validation.Params{
+				rule.ParamNumMax: max,
+			},
+		}
 
 		t.Run("PanicIfNotPtr", func(t *testing.T) {
 			assertInternalError(t, fun(10))
@@ -176,7 +220,7 @@ func TestNumMax(t *testing.T) {
 		})
 		t.Run("ErrorIfGt", func(t *testing.T) {
 			v := max + 1
-			assertError(t, fmt.Errorf(msg, max), fun(&v))
+			require.Equal(t, exp, fun(&v))
 		})
 		t.Run("OkIfEq", func(t *testing.T) {
 			v := max
@@ -188,9 +232,15 @@ func TestNumMax(t *testing.T) {
 		})
 	})
 	t.Run("Time", func(t *testing.T) {
-		msg := "cannot be great than %d"
+		msg := "ErrMax"
 		max := time.Date(2018, 2, 5, 0, 0, 0, 0, time.Local)
 		fun := rule.Max(max, msg)
+		exp := validation.Error{
+			Message: msg,
+			Params: validation.Params{
+				rule.ParamNumMax: max,
+			},
+		}
 
 		t.Run("PanicIfNotPtr", func(t *testing.T) {
 			assertInternalError(t, fun(10))
@@ -201,7 +251,7 @@ func TestNumMax(t *testing.T) {
 		})
 		t.Run("ErrorIfGt", func(t *testing.T) {
 			v := time.Date(2018, 2, 6, 0, 0, 0, 0, time.Local)
-			assertError(t, fmt.Errorf(msg, max), fun(&v))
+			require.Equal(t, exp, fun(&v))
 		})
 		t.Run("OkIfEq", func(t *testing.T) {
 			v := max
@@ -216,10 +266,17 @@ func TestNumMax(t *testing.T) {
 
 func TestBetween(t *testing.T) {
 	t.Run("Int", func(t *testing.T) {
-		msg := "must be in [%v, %v]"
+		msg := "ErrBetween"
 		a := 10
 		b := 20
 		fun := rule.Between(a, b, msg)
+		exp := validation.Error{
+			Message: msg,
+			Params: validation.Params{
+				rule.ParamNumMin: a,
+				rule.ParamNumMax: b,
+			},
+		}
 
 		t.Run("PanicIfNotPtr", func(t *testing.T) {
 			assertInternalError(t, fun(10))
@@ -230,11 +287,11 @@ func TestBetween(t *testing.T) {
 		})
 		t.Run("ErrorIfLt", func(t *testing.T) {
 			v := a - 1
-			assertError(t, fmt.Errorf(msg, a, b), fun(&v))
+			require.Equal(t, exp, fun(&v))
 		})
 		t.Run("ErrorIfGt", func(t *testing.T) {
 			v := b + 1
-			assertError(t, fmt.Errorf(msg, a, b), fun(&v))
+			require.Equal(t, exp, fun(&v))
 		})
 		t.Run("OkIfEqL", func(t *testing.T) {
 			v := a
@@ -250,10 +307,17 @@ func TestBetween(t *testing.T) {
 		})
 	})
 	t.Run("Uint", func(t *testing.T) {
-		msg := "must be in [%v, %v]"
+		msg := "ErrBetween"
 		a := uint(10)
 		b := uint(20)
 		fun := rule.Between(a, b, msg)
+		exp := validation.Error{
+			Message: msg,
+			Params: validation.Params{
+				rule.ParamNumMin: a,
+				rule.ParamNumMax: b,
+			},
+		}
 
 		t.Run("PanicIfNotPtr", func(t *testing.T) {
 			assertInternalError(t, fun(10))
@@ -264,11 +328,11 @@ func TestBetween(t *testing.T) {
 		})
 		t.Run("ErrorIfLt", func(t *testing.T) {
 			v := a - 1
-			assertError(t, fmt.Errorf(msg, a, b), fun(&v))
+			require.Equal(t, exp, fun(&v))
 		})
 		t.Run("ErrorIfGt", func(t *testing.T) {
 			v := b + 1
-			assertError(t, fmt.Errorf(msg, a, b), fun(&v))
+			require.Equal(t, exp, fun(&v))
 		})
 		t.Run("OkIfEqL", func(t *testing.T) {
 			v := a
@@ -284,10 +348,17 @@ func TestBetween(t *testing.T) {
 		})
 	})
 	t.Run("Float", func(t *testing.T) {
-		msg := "must be in [%v, %v]"
+		msg := "ErrBetween"
 		a := 10.0
 		b := 20.0
 		fun := rule.Between(a, b, msg)
+		exp := validation.Error{
+			Message: msg,
+			Params: validation.Params{
+				rule.ParamNumMin: a,
+				rule.ParamNumMax: b,
+			},
+		}
 
 		t.Run("PanicIfNotPtr", func(t *testing.T) {
 			assertInternalError(t, fun(10))
@@ -298,11 +369,11 @@ func TestBetween(t *testing.T) {
 		})
 		t.Run("ErrorIfLt", func(t *testing.T) {
 			v := a - 1
-			assertError(t, fmt.Errorf(msg, a, b), fun(&v))
+			require.Equal(t, exp, fun(&v))
 		})
 		t.Run("ErrorIfGt", func(t *testing.T) {
 			v := b + 1
-			assertError(t, fmt.Errorf(msg, a, b), fun(&v))
+			require.Equal(t, exp, fun(&v))
 		})
 		t.Run("OkIfEqL", func(t *testing.T) {
 			v := a
@@ -318,10 +389,17 @@ func TestBetween(t *testing.T) {
 		})
 	})
 	t.Run("Time", func(t *testing.T) {
-		msg := "must be in [%v, %v]"
+		msg := "ErrBetween"
 		a := time.Date(2018, 1, 10, 0, 0, 0, 0, time.Local)
 		b := time.Date(2018, 1, 20, 0, 0, 0, 0, time.Local)
 		fun := rule.Between(a, b, msg)
+		exp := validation.Error{
+			Message: msg,
+			Params: validation.Params{
+				rule.ParamNumMin: a,
+				rule.ParamNumMax: b,
+			},
+		}
 
 		t.Run("PanicIfNotPtr", func(t *testing.T) {
 			assertInternalError(t, fun(10))
@@ -332,11 +410,11 @@ func TestBetween(t *testing.T) {
 		})
 		t.Run("ErrorIfLt", func(t *testing.T) {
 			v := time.Date(2018, 1, 9, 0, 0, 0, 0, time.Local)
-			assertError(t, fmt.Errorf(msg, a, b), fun(&v))
+			require.Equal(t, exp, fun(&v))
 		})
 		t.Run("ErrorIfGt", func(t *testing.T) {
 			v := time.Date(2018, 1, 21, 0, 0, 0, 0, time.Local)
-			assertError(t, fmt.Errorf(msg, a, b), fun(&v))
+			require.Equal(t, exp, fun(&v))
 		})
 		t.Run("OkIfEqL", func(t *testing.T) {
 			v := a

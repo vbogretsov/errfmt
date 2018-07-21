@@ -1,11 +1,15 @@
 package rule
 
 import (
-	"errors"
 	"fmt"
 	"reflect"
 
 	"github.com/vbogretsov/go-validation"
+)
+
+var (
+	ParamInUnsupported = "unsupported"
+	ParamInSupported   = "supported"
 )
 
 func unexpectedType(v interface{}) validation.Panic {
@@ -31,7 +35,7 @@ func NotNil(msg string) validation.Rule {
 			reflect.Chan:
 
 			if reflect.ValueOf(v).Elem().IsNil() {
-				return errors.New(msg)
+				return validation.Error{Message: msg}
 			}
 		default:
 			return unexpectedType(v)
@@ -57,7 +61,10 @@ func In(values []interface{}, msg string) validation.Rule {
 
 		k := vl.Interface()
 		if !set[k] {
-			return fmt.Errorf(msg, k, values)
+			return validation.Error{Message: msg, Params: validation.Params{
+				ParamInUnsupported: k,
+				ParamInSupported:   values,
+			}}
 		}
 		return nil
 	}

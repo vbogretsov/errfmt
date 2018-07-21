@@ -1,15 +1,16 @@
 package rule_test
 
 import (
-	"errors"
-	"fmt"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
+	"github.com/vbogretsov/go-validation"
 	"github.com/vbogretsov/go-validation/rule"
 )
 
 func TestNotNil(t *testing.T) {
-	msg := "cannot be nil"
+	msg := "ErrNil"
 	fun := rule.NotNil(msg)
 
 	t.Run("PanicIfInvalidType", func(t *testing.T) {
@@ -21,7 +22,8 @@ func TestNotNil(t *testing.T) {
 	})
 	t.Run("ErrorIfNil", func(t *testing.T) {
 		var n interface{} = nil
-		assertError(t, fun(&n), errors.New(msg))
+		require.Equal(t, validation.Error{Message: msg}, fun(&n))
+
 	})
 	t.Run("OkIfNotNil", func(t *testing.T) {
 		v := []int{}
@@ -30,7 +32,7 @@ func TestNotNil(t *testing.T) {
 }
 
 func TestIn(t *testing.T) {
-	msg := "unsupported value %v, allowed values: %v"
+	msg := "ErrUnsupported"
 	set := []interface{}{"a1", "b2", "c3"}
 	fun := rule.In(set, msg)
 
@@ -39,7 +41,11 @@ func TestIn(t *testing.T) {
 	})
 	t.Run("ErrorIfNotIn", func(t *testing.T) {
 		val := "d4"
-		exp := fmt.Errorf(msg, val, set)
+		exp := validation.Error{Message: msg, Params: validation.Params{
+			rule.ParamInUnsupported: val,
+			rule.ParamInSupported:   set,
+		}}
+
 		assertError(t, exp, fun(&val))
 	})
 	t.Run("OkIfIn", func(t *testing.T) {

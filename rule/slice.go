@@ -1,7 +1,6 @@
 package rule
 
 import (
-	"errors"
 	"fmt"
 	"reflect"
 
@@ -10,6 +9,11 @@ import (
 
 const (
 	eNotPtr = "expected pointer at index %d"
+)
+
+var (
+	ParamSliceMinLen = "minLen"
+	ParamSliceMaxLen = "maxLen"
 )
 
 // SliceIter represent iterator interface for slice.
@@ -34,11 +38,16 @@ func sliceRule(fn func(v interface{}) error) validation.Rule {
 // SliceLen creates validator to check whether slice length is in the range
 // provided.
 func SliceLen(min, max int, msg string) validation.Rule {
-	emsg := fmt.Sprintf(msg, min, max)
 	return sliceRule(func(v interface{}) error {
 		n := reflect.ValueOf(v).Elem().Len()
 		if n < min || n > max {
-			return errors.New(emsg)
+			return validation.Error{
+				Message: msg,
+				Params: validation.Params{
+					ParamSliceMinLen: min,
+					ParamSliceMaxLen: max,
+				},
+			}
 		}
 		return nil
 	})
@@ -47,11 +56,15 @@ func SliceLen(min, max int, msg string) validation.Rule {
 // SliceMinLen creates validator to check whether slice length is not less than
 // the value provided.
 func SliceMinLen(min int, msg string) validation.Rule {
-	emsg := fmt.Sprintf(msg, min)
 	return sliceRule(func(v interface{}) error {
 		n := reflect.ValueOf(v).Elem().Len()
 		if n < min {
-			return errors.New(emsg)
+			return validation.Error{
+				Message: msg,
+				Params: validation.Params{
+					ParamSliceMinLen: min,
+				},
+			}
 		}
 		return nil
 	})
@@ -60,11 +73,15 @@ func SliceMinLen(min int, msg string) validation.Rule {
 // SliceMaxLen creates validator to check whether slice length is not less than
 // the value provided.
 func SliceMaxLen(max int, msg string) validation.Rule {
-	emsg := fmt.Sprintf(msg, max)
 	return sliceRule(func(v interface{}) error {
 		n := reflect.ValueOf(v).Elem().Len()
 		if n > max {
-			return errors.New(emsg)
+			return validation.Error{
+				Message: msg,
+				Params: validation.Params{
+					ParamSliceMaxLen: max,
+				},
+			}
 		}
 		return nil
 	})
@@ -127,7 +144,7 @@ func SliceUnique(iter SliceIter, msg string) validation.Rule {
 			if set[k] {
 				errs = append(errs, validation.SliceError{
 					Index:  i,
-					Errors: []error{errors.New(msg)},
+					Errors: []error{validation.Error{Message: msg}},
 				})
 			}
 

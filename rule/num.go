@@ -2,7 +2,6 @@ package rule
 
 import (
 	"errors"
-	"fmt"
 	"reflect"
 	"time"
 
@@ -11,6 +10,11 @@ import (
 
 var (
 	eTypeMismatch = errors.New("between parameters should have same type")
+)
+
+var (
+	ParamNumMin = "min"
+	ParamNumMax = "max"
 )
 
 func int64rule(fn func(int64) error) validation.Rule {
@@ -58,6 +62,34 @@ func timerule(fn func(time.Time) error) validation.Rule {
 	}
 }
 
+func errorMin(min interface{}, msg string) validation.Error {
+	return validation.Error{
+		Message: msg,
+		Params: validation.Params{
+			ParamNumMin: min,
+		},
+	}
+}
+
+func errorMax(max interface{}, msg string) validation.Error {
+	return validation.Error{
+		Message: msg,
+		Params: validation.Params{
+			ParamNumMax: max,
+		},
+	}
+}
+
+func errorBetween(a, b interface{}, msg string) validation.Error {
+	return validation.Error{
+		Message: msg,
+		Params: validation.Params{
+			ParamNumMin: a,
+			ParamNumMax: b,
+		},
+	}
+}
+
 // Min creates validator to check whether a number is not less than the
 // value provided.
 func Min(min interface{}, msg string) validation.Rule {
@@ -66,7 +98,7 @@ func Min(min interface{}, msg string) validation.Rule {
 		a := int64(x)
 		return int64rule(func(v int64) error {
 			if v < a {
-				return fmt.Errorf(msg, x)
+				return errorMin(min, msg)
 			}
 			return nil
 		})
@@ -74,7 +106,7 @@ func Min(min interface{}, msg string) validation.Rule {
 		a := uint64(x)
 		return uint64rule(func(v uint64) error {
 			if v < a {
-				return fmt.Errorf(msg, x)
+				return errorMin(min, msg)
 			}
 			return nil
 		})
@@ -82,7 +114,7 @@ func Min(min interface{}, msg string) validation.Rule {
 		a := float64(x)
 		return float64rule(func(v float64) error {
 			if v < a {
-				return fmt.Errorf(msg, x)
+				return errorMin(min, msg)
 			}
 			return nil
 		})
@@ -90,7 +122,7 @@ func Min(min interface{}, msg string) validation.Rule {
 		a := float64(x)
 		return float64rule(func(v float64) error {
 			if v < a {
-				return fmt.Errorf(msg, x)
+				return errorMin(min, msg)
 			}
 			return nil
 		})
@@ -98,7 +130,7 @@ func Min(min interface{}, msg string) validation.Rule {
 		a := time.Time(x)
 		return timerule(func(v time.Time) error {
 			if v.Sub(a) < 0 {
-				return fmt.Errorf(msg, a)
+				return errorMin(min, msg)
 			}
 			return nil
 		})
@@ -115,7 +147,7 @@ func Max(max interface{}, msg string) validation.Rule {
 		a := int64(x)
 		return int64rule(func(v int64) error {
 			if v > a {
-				return fmt.Errorf(msg, x)
+				return errorMax(max, msg)
 			}
 			return nil
 		})
@@ -123,7 +155,7 @@ func Max(max interface{}, msg string) validation.Rule {
 		a := uint64(x)
 		return uint64rule(func(v uint64) error {
 			if v > a {
-				return fmt.Errorf(msg, x)
+				return errorMax(max, msg)
 			}
 			return nil
 		})
@@ -131,7 +163,7 @@ func Max(max interface{}, msg string) validation.Rule {
 		a := float64(x)
 		return float64rule(func(v float64) error {
 			if v > a {
-				return fmt.Errorf(msg, x)
+				return errorMax(max, msg)
 			}
 			return nil
 		})
@@ -139,7 +171,7 @@ func Max(max interface{}, msg string) validation.Rule {
 		a := float64(x)
 		return float64rule(func(v float64) error {
 			if v > a {
-				return fmt.Errorf(msg, x)
+				return errorMax(max, msg)
 			}
 			return nil
 		})
@@ -147,7 +179,7 @@ func Max(max interface{}, msg string) validation.Rule {
 		a := time.Time(x)
 		return timerule(func(v time.Time) error {
 			if a.Sub(v) < 0 {
-				return fmt.Errorf(msg, a)
+				return errorMax(max, msg)
 			}
 			return nil
 		})
@@ -174,7 +206,7 @@ func Between(a, b interface{}, msg string) validation.Rule {
 
 		return int64rule(func(v int64) error {
 			if v < l || v > h {
-				return fmt.Errorf(msg, l, h)
+				return errorBetween(a, b, msg)
 			}
 			return nil
 		})
@@ -184,7 +216,7 @@ func Between(a, b interface{}, msg string) validation.Rule {
 
 		return uint64rule(func(v uint64) error {
 			if v < l || v > h {
-				return fmt.Errorf(msg, l, h)
+				return errorBetween(a, b, msg)
 			}
 			return nil
 		})
@@ -194,7 +226,7 @@ func Between(a, b interface{}, msg string) validation.Rule {
 
 		return float64rule(func(v float64) error {
 			if v < l || v > h {
-				return fmt.Errorf(msg, l, h)
+				return errorBetween(a, b, msg)
 			}
 			return nil
 		})
@@ -204,7 +236,7 @@ func Between(a, b interface{}, msg string) validation.Rule {
 
 		return timerule(func(v time.Time) error {
 			if v.Sub(l) < 0 || h.Sub(v) < 0 {
-				return fmt.Errorf(msg, l, h)
+				return errorBetween(a, b, msg)
 			}
 			return nil
 		})

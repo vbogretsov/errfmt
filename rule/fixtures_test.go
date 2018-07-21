@@ -1,8 +1,6 @@
 package rule_test
 
 import (
-	"errors"
-	"fmt"
 	"reflect"
 	"testing"
 
@@ -12,10 +10,10 @@ import (
 )
 
 const (
-	eBlank     = "cannot be blank"
-	eEmail     = "invalid email"
-	eMinLen    = "cannot be shorther than %d"
-	eDuplicate = "duplicated item"
+	eBlank     = "ErrEmailBlank"
+	eEmail     = "ErrEmailInvalid"
+	eMinLen    = "ErrMinLen"
+	eDuplicate = "ErrDuplicated"
 	minLen     = 5
 )
 
@@ -109,43 +107,49 @@ var invalidUsers = []User{
 var invalidUserErrors = validation.Errors([]error{
 	validation.SliceError{
 		Index: 0,
-		Errors: validation.Errors([]error{
+		Errors: []error{
 			validation.StructError{
 				Field: "Email",
-				Errors: validation.Errors([]error{
-					errors.New(eBlank),
-					errors.New(eEmail),
-				}),
+				Errors: []error{
+					validation.Error{Message: eBlank},
+					validation.Error{Message: eEmail},
+				},
 			},
 			validation.StructError{
 				Field: "Password",
-				Errors: validation.Errors([]error{
-					fmt.Errorf(eMinLen, minLen),
-				}),
+				Errors: []error{
+					validation.Error{Message: eMinLen, Params: validation.Params{
+						rule.ParamStrMinLen: minLen,
+					}},
+				},
 			},
-		}),
+		},
 	},
 	validation.SliceError{
 		Index: 1,
-		Errors: validation.Errors([]error{
+		Errors: []error{
 			validation.StructError{
 				Field:  "Email",
-				Errors: []error{errors.New(eEmail)},
+				Errors: []error{validation.Error{Message: eEmail}},
 			},
 			validation.StructError{
-				Field:  "Password",
-				Errors: []error{fmt.Errorf(eMinLen, minLen)},
+				Field: "Password",
+				Errors: []error{
+					validation.Error{Message: eMinLen, Params: validation.Params{
+						rule.ParamStrMinLen: minLen,
+					}},
+				},
 			},
-		}),
+		},
 	},
 	validation.SliceError{
 		Index: 2,
-		Errors: validation.Errors([]error{
+		Errors: []error{
 			validation.StructError{
 				Field:  "Email",
-				Errors: []error{errors.New(eEmail)},
+				Errors: []error{validation.Error{Message: eEmail}},
 			},
-		}),
+		},
 	},
 })
 
@@ -179,10 +183,10 @@ var duplicatedUsers = []User{
 var duplicatedUserErrors = validation.Errors([]error{
 	validation.SliceError{
 		Index:  3,
-		Errors: validation.Errors([]error{errors.New(eDuplicate)}),
+		Errors: []error{validation.Error{Message: eDuplicate}},
 	},
 	validation.SliceError{
 		Index:  5,
-		Errors: validation.Errors([]error{errors.New(eDuplicate)}),
+		Errors: []error{validation.Error{Message: eDuplicate}},
 	},
 })

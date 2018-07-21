@@ -1,24 +1,24 @@
 package rule_test
 
 import (
-	"errors"
-	"fmt"
 	"regexp"
 	"testing"
 
+	"github.com/vbogretsov/go-validation"
 	"github.com/vbogretsov/go-validation/rule"
 )
 
 func TestStrRequired(t *testing.T) {
-	msg := "cannot be nlank"
+	msg := "ErrBlank"
 	fun := rule.StrRequired(msg)
+	exp := validation.Error{Message: msg}
 
 	t.Run("PanicIfInvalidType", func(t *testing.T) {
 		assertInternalError(t, fun(10))
 	})
 	t.Run("ErrorIfEmpty", func(t *testing.T) {
 		v := ""
-		assertError(t, errors.New(msg), fun(&v))
+		assertError(t, exp, fun(&v))
 	})
 	t.Run("OkIfLenEqMax", func(t *testing.T) {
 		v := "123"
@@ -29,19 +29,26 @@ func TestStrRequired(t *testing.T) {
 func TestStrLen(t *testing.T) {
 	min := 2
 	max := 8
-	msg := "len must be in range [%d, %d]"
+	msg := "ErrLen"
 	fun := rule.StrLen(min, max, msg)
+	exp := validation.Error{
+		Message: msg,
+		Params: validation.Params{
+			rule.ParamStrMinLen: min,
+			rule.ParamStrMaxLen: max,
+		},
+	}
 
 	t.Run("PanicIfInvalidType", func(t *testing.T) {
 		assertInternalError(t, fun(10))
 	})
 	t.Run("ErrorIfMin", func(t *testing.T) {
 		v := ""
-		assertError(t, fmt.Errorf(msg, min, max), fun(&v))
+		assertError(t, exp, fun(&v))
 	})
 	t.Run("ErrorIfMax", func(t *testing.T) {
 		v := "123456789"
-		assertError(t, fmt.Errorf(msg, min, max), fun(&v))
+		assertError(t, exp, fun(&v))
 	})
 	t.Run("OkIfInRange", func(t *testing.T) {
 		v := "1234"
@@ -59,15 +66,21 @@ func TestStrLen(t *testing.T) {
 
 func TestStrMinLen(t *testing.T) {
 	min := 2
-	msg := "len must be not less than %d"
+	msg := "ErrMinLen"
 	fun := rule.StrMinLen(min, msg)
+	exp := validation.Error{
+		Message: msg,
+		Params: validation.Params{
+			rule.ParamStrMinLen: min,
+		},
+	}
 
 	t.Run("PanicIfInvalidType", func(t *testing.T) {
 		assertInternalError(t, fun(10))
 	})
 	t.Run("ErrorIfMin", func(t *testing.T) {
 		v := ""
-		assertError(t, fmt.Errorf(msg, min), fun(&v))
+		assertError(t, exp, fun(&v))
 	})
 	t.Run("OkIfLenGt", func(t *testing.T) {
 		v := "1234"
@@ -81,15 +94,21 @@ func TestStrMinLen(t *testing.T) {
 
 func TestStrMaxLen(t *testing.T) {
 	max := 8
-	msg := "len must be not great than %d"
+	msg := "ErrMinLen"
 	fun := rule.StrMaxLen(max, msg)
+	exp := validation.Error{
+		Message: msg,
+		Params: validation.Params{
+			rule.ParamStrMaxLen: max,
+		},
+	}
 
 	t.Run("PanicIfInvalidType", func(t *testing.T) {
 		assertInternalError(t, fun(10))
 	})
 	t.Run("ErrorIfMax", func(t *testing.T) {
 		v := "123456789"
-		assertError(t, fmt.Errorf(msg, max), fun(&v))
+		assertError(t, exp, fun(&v))
 	})
 	t.Run("OkIfLenLt", func(t *testing.T) {
 		v := "1234567"
@@ -102,15 +121,16 @@ func TestStrMaxLen(t *testing.T) {
 }
 
 func TestStrMatch(t *testing.T) {
-	msg := "does not match the pattern"
+	msg := "ErrMatch"
 	fun := rule.StrMatch(regexp.MustCompile(`\d+`), msg)
+	exp := validation.Error{Message: msg}
 
 	t.Run("PanicIfInvalidType", func(t *testing.T) {
 		assertInternalError(t, fun(10))
 	})
 	t.Run("ErrorIfNotMatch", func(t *testing.T) {
 		v := "abcd"
-		assertError(t, errors.New(msg), fun(&v))
+		assertError(t, exp, fun(&v))
 	})
 	t.Run("OkIfMatch", func(t *testing.T) {
 		v := "1234"

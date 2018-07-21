@@ -15,10 +15,13 @@ func (e Panic) Error() string {
 	return e.Err.Error()
 }
 
+// Params represents validation error parameters.
+type Params map[string]interface{}
+
 // Error represents a validation error
 type Error struct {
 	Message string
-	Params  map[string]interface{}
+	Params  Params
 }
 
 // Error gets string representation of a validation error.
