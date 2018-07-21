@@ -43,17 +43,3 @@ func TestSliceError(t *testing.T) {
 		t.Errorf("expected '%s' but got '%s", exp, act)
 	}
 }
-
-func TestMapError(t *testing.T) {
-	e := validation.MapError{
-		Key:    "k1",
-		Errors: []error{errors.New("1"), errors.New("2")},
-	}
-
-	exp := "k1: 1, 2"
-	act := e.Error()
-
-	if exp != act {
-		t.Errorf("expected '%s' but got '%s", exp, act)
-	}
-}

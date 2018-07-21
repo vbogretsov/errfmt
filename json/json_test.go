@@ -1,4 +1,4 @@
-package jsonerr_test
+package json_test
 
 import (
 	"encoding/json"
@@ -8,8 +8,9 @@ import (
 	"testing"
 
 	"github.com/kr/pretty"
+
 	"github.com/vbogretsov/go-validation"
-	"github.com/vbogretsov/go-validation/jsonerr"
+	jsonerr "github.com/vbogretsov/go-validation/json"
 )
 
 const (
@@ -31,17 +32,24 @@ type fixture struct {
 }
 
 func (fx fixture) check() error {
-	buf, err := json.Marshal(jsonerr.Errors(fx.err))
+	buf, err := json.Marshal(jsonerr.New(
+		fx.err,
+		jsonerr.DefaultFormatter,
+		jsonerr.DefaultJoiner))
+
 	if err != nil {
 		return err
 	}
+
 	var v []jsonError
 	if err := json.Unmarshal(buf, &v); err != nil {
 		return err
 	}
+
 	if !reflect.DeepEqual(fx.rep, v) {
 		return errors.New(strings.Join(pretty.Diff(fx.rep, v), " "))
 	}
+
 	return nil
 }
 
@@ -60,11 +68,11 @@ var fixtures = []fixture{
 		rep: []jsonError{
 			{
 				Error: eEmail,
-				Path:  "/username",
+				Path:  ".username",
 			},
 			{
 				Error: ePasswordShort,
-				Path:  "/password",
+				Path:  ".password",
 			},
 		},
 	},
@@ -129,43 +137,43 @@ var fixtures = []fixture{
 		rep: []jsonError{
 			{
 				Error: eBlank,
-				Path:  "/username",
+				Path:  ".username",
 			},
 			{
 				Error: eEmail,
-				Path:  "/username",
+				Path:  ".username",
 			},
 			{
 				Error: eBlank,
-				Path:  "/password",
+				Path:  ".password",
 			},
 			{
 				Error: ePasswordShort,
-				Path:  "/password",
+				Path:  ".password",
 			},
 			{
 				Error: eDigitsOnly,
-				Path:  "/addresses/0/zipcode",
+				Path:  ".addresses[0].zipcode",
 			},
 			{
 				Error: eLettersOnly,
-				Path:  "/addresses/0/country",
+				Path:  ".addresses[0].country",
 			},
 			{
 				Error: eBlank,
-				Path:  "/addresses/3/zipcode",
+				Path:  ".addresses[3].zipcode",
 			},
 			{
 				Error: eDigitsOnly,
-				Path:  "/addresses/3/zipcode",
+				Path:  ".addresses[3].zipcode",
 			},
 			{
 				Error: eBlank,
-				Path:  "/addresses/3/country",
+				Path:  ".addresses[3].country",
 			},
 			{
 				Error: eLettersOnly,
-				Path:  "/addresses/3/country",
+				Path:  ".addresses[3].country",
 			},
 		},
 	},

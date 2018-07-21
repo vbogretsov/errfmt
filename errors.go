@@ -1,7 +1,6 @@
 package validation
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 )
@@ -14,6 +13,17 @@ type Panic struct {
 // Error rerurns string representation of the internal error.
 func (e Panic) Error() string {
 	return e.Err.Error()
+}
+
+// Error represents a validation error
+type Error struct {
+	Message string
+	Params  map[string]interface{}
+}
+
+// Error gets string representation of a validation error.
+func (e Error) Error() string {
+	return e.Message
 }
 
 // Errors represents errors collection.
@@ -48,23 +58,6 @@ type SliceError struct {
 // Error returns string representation of a SliceError.
 func (e SliceError) Error() string {
 	return fmt.Sprintf("%d: %s", e.Index, e.Errors.Error())
-}
-
-// MapError represents a map item validation error.
-// NOTE(vbogretsov): map validation should be implemented later.
-type MapError struct {
-	Key    interface{}
-	Errors Errors
-}
-
-// Error returns string representation of a MapError.
-func (e MapError) Error() string {
-	return fmt.Sprintf("%v: %s", e.Key, e.Errors.Error())
-}
-
-// Error creates validation errros from a single error.
-func Error(text string) Errors {
-	return Errors([]error{errors.New(text)})
 }
 
 // Errorf creates validation errros from a single error.
