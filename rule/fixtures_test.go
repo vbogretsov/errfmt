@@ -1,10 +1,8 @@
 package rule_test
 
 import (
-	"reflect"
 	"testing"
 
-	"github.com/kr/pretty"
 	"github.com/vbogretsov/go-validation"
 	"github.com/vbogretsov/go-validation/rule"
 )
@@ -22,23 +20,11 @@ type User struct {
 	Password string
 }
 
-func assertInternalError(t *testing.T, err error) {
+func assertPanic(t *testing.T, err error) {
 	if err == nil {
 		t.Error("expected validation.Panic but got nil")
 	} else if _, ok := err.(validation.Panic); !ok {
 		t.Errorf("expected validation.Panic but got %v", err)
-	}
-}
-
-func assertError(t *testing.T, exp error, act error) {
-	if !reflect.DeepEqual(exp, act) {
-		t.Error(pretty.Diff(exp, act))
-	}
-}
-
-func assertOk(t *testing.T, err error) {
-	if err != nil {
-		t.Errorf("expected nil but got error: %v", err)
 	}
 }
 

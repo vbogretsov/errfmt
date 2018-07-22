@@ -4,6 +4,7 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/stretchr/testify/require"
 	"github.com/vbogretsov/go-validation"
 	"github.com/vbogretsov/go-validation/rule"
 )
@@ -14,15 +15,15 @@ func TestStrRequired(t *testing.T) {
 	exp := validation.Error{Message: msg}
 
 	t.Run("PanicIfInvalidType", func(t *testing.T) {
-		assertInternalError(t, fun(10))
+		assertPanic(t, fun(10))
 	})
 	t.Run("ErrorIfEmpty", func(t *testing.T) {
 		v := ""
-		assertError(t, exp, fun(&v))
+		require.Equal(t, exp, fun(&v))
 	})
 	t.Run("OkIfLenEqMax", func(t *testing.T) {
 		v := "123"
-		assertOk(t, fun(&v))
+		require.Nil(t, fun(&v))
 	})
 }
 
@@ -40,27 +41,27 @@ func TestStrLen(t *testing.T) {
 	}
 
 	t.Run("PanicIfInvalidType", func(t *testing.T) {
-		assertInternalError(t, fun(10))
+		assertPanic(t, fun(10))
 	})
 	t.Run("ErrorIfMin", func(t *testing.T) {
 		v := ""
-		assertError(t, exp, fun(&v))
+		require.Equal(t, exp, fun(&v))
 	})
 	t.Run("ErrorIfMax", func(t *testing.T) {
 		v := "123456789"
-		assertError(t, exp, fun(&v))
+		require.Equal(t, exp, fun(&v))
 	})
 	t.Run("OkIfInRange", func(t *testing.T) {
 		v := "1234"
-		assertOk(t, fun(&v))
+		require.Nil(t, fun(&v))
 	})
 	t.Run("OkIfLenEqMin", func(t *testing.T) {
 		v := "12"
-		assertOk(t, fun(&v))
+		require.Nil(t, fun(&v))
 	})
 	t.Run("OkIfLenEqMax", func(t *testing.T) {
 		v := "12345678"
-		assertOk(t, fun(&v))
+		require.Nil(t, fun(&v))
 	})
 }
 
@@ -76,19 +77,19 @@ func TestStrMinLen(t *testing.T) {
 	}
 
 	t.Run("PanicIfInvalidType", func(t *testing.T) {
-		assertInternalError(t, fun(10))
+		assertPanic(t, fun(10))
 	})
 	t.Run("ErrorIfMin", func(t *testing.T) {
 		v := ""
-		assertError(t, exp, fun(&v))
+		require.Equal(t, exp, fun(&v))
 	})
 	t.Run("OkIfLenGt", func(t *testing.T) {
 		v := "1234"
-		assertOk(t, fun(&v))
+		require.Nil(t, fun(&v))
 	})
 	t.Run("OkIfLenEq", func(t *testing.T) {
 		v := "12"
-		assertOk(t, fun(&v))
+		require.Nil(t, fun(&v))
 	})
 }
 
@@ -104,19 +105,19 @@ func TestStrMaxLen(t *testing.T) {
 	}
 
 	t.Run("PanicIfInvalidType", func(t *testing.T) {
-		assertInternalError(t, fun(10))
+		assertPanic(t, fun(10))
 	})
 	t.Run("ErrorIfMax", func(t *testing.T) {
 		v := "123456789"
-		assertError(t, exp, fun(&v))
+		require.Equal(t, exp, fun(&v))
 	})
 	t.Run("OkIfLenLt", func(t *testing.T) {
 		v := "1234567"
-		assertOk(t, fun(&v))
+		require.Nil(t, fun(&v))
 	})
 	t.Run("OkIfLenEq", func(t *testing.T) {
 		v := "12345678"
-		assertOk(t, fun(&v))
+		require.Nil(t, fun(&v))
 	})
 }
 
@@ -126,14 +127,14 @@ func TestStrMatch(t *testing.T) {
 	exp := validation.Error{Message: msg}
 
 	t.Run("PanicIfInvalidType", func(t *testing.T) {
-		assertInternalError(t, fun(10))
+		assertPanic(t, fun(10))
 	})
 	t.Run("ErrorIfNotMatch", func(t *testing.T) {
 		v := "abcd"
-		assertError(t, exp, fun(&v))
+		require.Equal(t, exp, fun(&v))
 	})
 	t.Run("OkIfMatch", func(t *testing.T) {
 		v := "1234"
-		assertOk(t, fun(&v))
+		require.Nil(t, fun(&v))
 	})
 }

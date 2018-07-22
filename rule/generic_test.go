@@ -14,11 +14,11 @@ func TestNotNil(t *testing.T) {
 	fun := rule.NotNil(msg)
 
 	t.Run("PanicIfInvalidType", func(t *testing.T) {
-		assertInternalError(t, fun(10))
+		assertPanic(t, fun(10))
 	})
 	t.Run("PanicIfValueCannotNil", func(t *testing.T) {
 		v := 10
-		assertInternalError(t, fun(&v))
+		assertPanic(t, fun(&v))
 	})
 	t.Run("ErrorIfNil", func(t *testing.T) {
 		var n interface{} = nil
@@ -27,7 +27,7 @@ func TestNotNil(t *testing.T) {
 	})
 	t.Run("OkIfNotNil", func(t *testing.T) {
 		v := []int{}
-		assertOk(t, fun(&v))
+		require.Nil(t, fun(&v))
 	})
 }
 
@@ -37,7 +37,7 @@ func TestIn(t *testing.T) {
 	fun := rule.In(set, msg)
 
 	t.Run("PanicIfInvalidType", func(t *testing.T) {
-		assertInternalError(t, fun("xxx"))
+		assertPanic(t, fun("xxx"))
 	})
 	t.Run("ErrorIfNotIn", func(t *testing.T) {
 		val := "d4"
@@ -46,10 +46,10 @@ func TestIn(t *testing.T) {
 			rule.ParamInSupported:   set,
 		}}
 
-		assertError(t, exp, fun(&val))
+		require.Equal(t, exp, fun(&val))
 	})
 	t.Run("OkIfIn", func(t *testing.T) {
 		val := "b2"
-		assertOk(t, fun(&val))
+		require.Nil(t, fun(&val))
 	})
 }

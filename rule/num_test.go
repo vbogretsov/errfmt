@@ -23,11 +23,11 @@ func TestMin(t *testing.T) {
 		}
 
 		t.Run("PanicIfNotPtr", func(t *testing.T) {
-			assertInternalError(t, fun(10))
+			assertPanic(t, fun(10))
 		})
 		t.Run("PanicIfInvalidType", func(t *testing.T) {
 			v := ""
-			assertInternalError(t, fun(&v))
+			assertPanic(t, fun(&v))
 		})
 		t.Run("ErrorIfLt", func(t *testing.T) {
 			v := min - 1
@@ -54,11 +54,11 @@ func TestMin(t *testing.T) {
 		}
 
 		t.Run("PanicIfNotPtr", func(t *testing.T) {
-			assertInternalError(t, fun(10))
+			assertPanic(t, fun(10))
 		})
 		t.Run("PanicIfInvalidType", func(t *testing.T) {
 			v := ""
-			assertInternalError(t, fun(&v))
+			assertPanic(t, fun(&v))
 		})
 		t.Run("ErrorIfLt", func(t *testing.T) {
 			v := min - 1
@@ -66,11 +66,11 @@ func TestMin(t *testing.T) {
 		})
 		t.Run("OkIfEq", func(t *testing.T) {
 			v := min
-			assertOk(t, fun(&v))
+			require.Nil(t, fun(&v))
 		})
 		t.Run("OkIfGt", func(t *testing.T) {
 			v := min + 1
-			assertOk(t, fun(&v))
+			require.Nil(t, fun(&v))
 		})
 	})
 	t.Run("Float", func(t *testing.T) {
@@ -85,11 +85,11 @@ func TestMin(t *testing.T) {
 		}
 
 		t.Run("PanicIfNotPtr", func(t *testing.T) {
-			assertInternalError(t, fun(10))
+			assertPanic(t, fun(10))
 		})
 		t.Run("PanicIfInvalidType", func(t *testing.T) {
 			v := ""
-			assertInternalError(t, fun(&v))
+			assertPanic(t, fun(&v))
 		})
 		t.Run("ErrorIfLt", func(t *testing.T) {
 			v := min - 1
@@ -97,11 +97,11 @@ func TestMin(t *testing.T) {
 		})
 		t.Run("OkIfEq", func(t *testing.T) {
 			v := min
-			assertOk(t, fun(&v))
+			require.Nil(t, fun(&v))
 		})
 		t.Run("OkIfGt", func(t *testing.T) {
 			v := min + 1
-			assertOk(t, fun(&v))
+			require.Nil(t, fun(&v))
 		})
 	})
 	t.Run("Time", func(t *testing.T) {
@@ -116,11 +116,11 @@ func TestMin(t *testing.T) {
 		}
 
 		t.Run("PanicIfNotPtr", func(t *testing.T) {
-			assertInternalError(t, fun(10))
+			assertPanic(t, fun(10))
 		})
 		t.Run("PanicIfInvalidType", func(t *testing.T) {
 			v := ""
-			assertInternalError(t, fun(&v))
+			assertPanic(t, fun(&v))
 		})
 		t.Run("ErrorIfLt", func(t *testing.T) {
 			v := time.Date(2018, 2, 8, 0, 0, 0, 0, time.Local)
@@ -128,11 +128,11 @@ func TestMin(t *testing.T) {
 		})
 		t.Run("OkIfEq", func(t *testing.T) {
 			v := min
-			assertOk(t, fun(&v))
+			require.Nil(t, fun(&v))
 		})
 		t.Run("OkIfGt", func(t *testing.T) {
 			v := time.Date(2018, 2, 10, 0, 0, 0, 0, time.Local)
-			assertOk(t, fun(&v))
+			require.Nil(t, fun(&v))
 		})
 	})
 }
@@ -150,11 +150,11 @@ func TestMax(t *testing.T) {
 		}
 
 		t.Run("PanicIfNotPtr", func(t *testing.T) {
-			assertInternalError(t, fun(10))
+			assertPanic(t, fun(10))
 		})
 		t.Run("PanicIfInvalidType", func(t *testing.T) {
 			v := ""
-			assertInternalError(t, fun(&v))
+			assertPanic(t, fun(&v))
 		})
 		t.Run("ErrorIfGt", func(t *testing.T) {
 			v := max + 1
@@ -162,11 +162,11 @@ func TestMax(t *testing.T) {
 		})
 		t.Run("OkIfEq", func(t *testing.T) {
 			v := max
-			assertOk(t, fun(&v))
+			require.Nil(t, fun(&v))
 		})
 		t.Run("OkIfLt", func(t *testing.T) {
 			v := max - 1
-			assertOk(t, fun(&v))
+			require.Nil(t, fun(&v))
 		})
 	})
 	t.Run("Uint", func(t *testing.T) {
@@ -181,11 +181,11 @@ func TestMax(t *testing.T) {
 		}
 
 		t.Run("PanicIfNotPtr", func(t *testing.T) {
-			assertInternalError(t, fun(10))
+			assertPanic(t, fun(10))
 		})
 		t.Run("PanicIfInvalidType", func(t *testing.T) {
 			v := ""
-			assertInternalError(t, fun(&v))
+			assertPanic(t, fun(&v))
 		})
 		t.Run("ErrorIfGt", func(t *testing.T) {
 			v := max + 1
@@ -193,11 +193,11 @@ func TestMax(t *testing.T) {
 		})
 		t.Run("OkIfEq", func(t *testing.T) {
 			v := max
-			assertOk(t, fun(&v))
+			require.Nil(t, fun(&v))
 		})
 		t.Run("OkIfLt", func(t *testing.T) {
 			v := max - 1
-			assertOk(t, fun(&v))
+			require.Nil(t, fun(&v))
 		})
 	})
 	t.Run("Float", func(t *testing.T) {
@@ -212,11 +212,11 @@ func TestMax(t *testing.T) {
 		}
 
 		t.Run("PanicIfNotPtr", func(t *testing.T) {
-			assertInternalError(t, fun(10))
+			assertPanic(t, fun(10))
 		})
 		t.Run("PanicIfInvalidType", func(t *testing.T) {
 			v := ""
-			assertInternalError(t, fun(&v))
+			assertPanic(t, fun(&v))
 		})
 		t.Run("ErrorIfGt", func(t *testing.T) {
 			v := max + 1
@@ -224,11 +224,11 @@ func TestMax(t *testing.T) {
 		})
 		t.Run("OkIfEq", func(t *testing.T) {
 			v := max
-			assertOk(t, fun(&v))
+			require.Nil(t, fun(&v))
 		})
 		t.Run("OkIfLt", func(t *testing.T) {
 			v := max - 1
-			assertOk(t, fun(&v))
+			require.Nil(t, fun(&v))
 		})
 	})
 	t.Run("Time", func(t *testing.T) {
@@ -243,11 +243,11 @@ func TestMax(t *testing.T) {
 		}
 
 		t.Run("PanicIfNotPtr", func(t *testing.T) {
-			assertInternalError(t, fun(10))
+			assertPanic(t, fun(10))
 		})
 		t.Run("PanicIfInvalidType", func(t *testing.T) {
 			v := ""
-			assertInternalError(t, fun(&v))
+			assertPanic(t, fun(&v))
 		})
 		t.Run("ErrorIfGt", func(t *testing.T) {
 			v := time.Date(2018, 2, 6, 0, 0, 0, 0, time.Local)
@@ -255,11 +255,11 @@ func TestMax(t *testing.T) {
 		})
 		t.Run("OkIfEq", func(t *testing.T) {
 			v := max
-			assertOk(t, fun(&v))
+			require.Nil(t, fun(&v))
 		})
 		t.Run("OkIfLt", func(t *testing.T) {
 			v := time.Date(2018, 2, 4, 0, 0, 0, 0, time.Local)
-			assertOk(t, fun(&v))
+			require.Nil(t, fun(&v))
 		})
 	})
 }
@@ -279,11 +279,11 @@ func TestBetween(t *testing.T) {
 		}
 
 		t.Run("PanicIfNotPtr", func(t *testing.T) {
-			assertInternalError(t, fun(10))
+			assertPanic(t, fun(10))
 		})
 		t.Run("PanicIfInvalidType", func(t *testing.T) {
 			v := ""
-			assertInternalError(t, fun(&v))
+			assertPanic(t, fun(&v))
 		})
 		t.Run("ErrorIfLt", func(t *testing.T) {
 			v := a - 1
@@ -295,15 +295,15 @@ func TestBetween(t *testing.T) {
 		})
 		t.Run("OkIfEqL", func(t *testing.T) {
 			v := a
-			assertOk(t, fun(&v))
+			require.Nil(t, fun(&v))
 		})
 		t.Run("OkIfEqG", func(t *testing.T) {
 			v := b
-			assertOk(t, fun(&v))
+			require.Nil(t, fun(&v))
 		})
 		t.Run("OkIfIn", func(t *testing.T) {
 			v := a + 1
-			assertOk(t, fun(&v))
+			require.Nil(t, fun(&v))
 		})
 	})
 	t.Run("Uint", func(t *testing.T) {
@@ -320,11 +320,11 @@ func TestBetween(t *testing.T) {
 		}
 
 		t.Run("PanicIfNotPtr", func(t *testing.T) {
-			assertInternalError(t, fun(10))
+			assertPanic(t, fun(10))
 		})
 		t.Run("PanicIfInvalidType", func(t *testing.T) {
 			v := ""
-			assertInternalError(t, fun(&v))
+			assertPanic(t, fun(&v))
 		})
 		t.Run("ErrorIfLt", func(t *testing.T) {
 			v := a - 1
@@ -336,15 +336,15 @@ func TestBetween(t *testing.T) {
 		})
 		t.Run("OkIfEqL", func(t *testing.T) {
 			v := a
-			assertOk(t, fun(&v))
+			require.Nil(t, fun(&v))
 		})
 		t.Run("OkIfEqG", func(t *testing.T) {
 			v := b
-			assertOk(t, fun(&v))
+			require.Nil(t, fun(&v))
 		})
 		t.Run("OkIfIn", func(t *testing.T) {
 			v := a + 1
-			assertOk(t, fun(&v))
+			require.Nil(t, fun(&v))
 		})
 	})
 	t.Run("Float", func(t *testing.T) {
@@ -361,11 +361,11 @@ func TestBetween(t *testing.T) {
 		}
 
 		t.Run("PanicIfNotPtr", func(t *testing.T) {
-			assertInternalError(t, fun(10))
+			assertPanic(t, fun(10))
 		})
 		t.Run("PanicIfInvalidType", func(t *testing.T) {
 			v := ""
-			assertInternalError(t, fun(&v))
+			assertPanic(t, fun(&v))
 		})
 		t.Run("ErrorIfLt", func(t *testing.T) {
 			v := a - 1
@@ -377,15 +377,15 @@ func TestBetween(t *testing.T) {
 		})
 		t.Run("OkIfEqL", func(t *testing.T) {
 			v := a
-			assertOk(t, fun(&v))
+			require.Nil(t, fun(&v))
 		})
 		t.Run("OkIfEqG", func(t *testing.T) {
 			v := b
-			assertOk(t, fun(&v))
+			require.Nil(t, fun(&v))
 		})
 		t.Run("OkIfIn", func(t *testing.T) {
 			v := a + 1
-			assertOk(t, fun(&v))
+			require.Nil(t, fun(&v))
 		})
 	})
 	t.Run("Time", func(t *testing.T) {
@@ -402,11 +402,11 @@ func TestBetween(t *testing.T) {
 		}
 
 		t.Run("PanicIfNotPtr", func(t *testing.T) {
-			assertInternalError(t, fun(10))
+			assertPanic(t, fun(10))
 		})
 		t.Run("PanicIfInvalidType", func(t *testing.T) {
 			v := ""
-			assertInternalError(t, fun(&v))
+			assertPanic(t, fun(&v))
 		})
 		t.Run("ErrorIfLt", func(t *testing.T) {
 			v := time.Date(2018, 1, 9, 0, 0, 0, 0, time.Local)
@@ -418,15 +418,15 @@ func TestBetween(t *testing.T) {
 		})
 		t.Run("OkIfEqL", func(t *testing.T) {
 			v := a
-			assertOk(t, fun(&v))
+			require.Nil(t, fun(&v))
 		})
 		t.Run("OkIfEqG", func(t *testing.T) {
 			v := b
-			assertOk(t, fun(&v))
+			require.Nil(t, fun(&v))
 		})
 		t.Run("OkIfIn", func(t *testing.T) {
 			v := time.Date(2018, 1, 11, 0, 0, 0, 0, time.Local)
-			assertOk(t, fun(&v))
+			require.Nil(t, fun(&v))
 		})
 	})
 }
