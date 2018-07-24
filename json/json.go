@@ -40,12 +40,6 @@ func (joiner) Slice(base string, index int) string {
 // DefaultJoiner if the default implementation of the PathBuilder interface.
 var DefaultJoiner = joiner{}
 
-// Error represents a json serializable error.
-type Error interface {
-	error
-	json.Marshaler
-}
-
 type marshaler struct {
 	errors    validation.Errors
 	formatter Formatter
@@ -53,19 +47,13 @@ type marshaler struct {
 }
 
 // New creates new json serializable error from validation errors.
-func New(errors validation.Errors, formatter Formatter, joiner Joiner) Error {
+func New(errors validation.Errors, formatter Formatter, joiner Joiner) json.Marshaler {
 
 	return &marshaler{
 		errors:    errors,
 		formatter: formatter,
 		joiner:    joiner,
 	}
-}
-
-// Error is implemented to make Marshaler compatible with the standard error
-// interface.
-func (m *marshaler) Error() string {
-	return m.errors.Error()
 }
 
 // MarshalJSON serializes validation errors into JSON.
