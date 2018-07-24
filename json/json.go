@@ -8,8 +8,9 @@ import (
 )
 
 type jsonError struct {
-	Path  string `json:"path,omitempty"`
-	Error string `json:"error"`
+	Path   string                 `json:"path,omitempty"`
+	Error  string                 `json:"error"`
+	Params map[string]interface{} `json:"params,omitempty"`
 }
 
 // Formatter represents valdation error message formatter.
@@ -90,8 +91,15 @@ func (m *marshaler) marshal(er error, path string, errs *[]jsonError) {
 		}
 	case validation.Error:
 		e := er.(validation.Error)
-		*errs = append(*errs, jsonError{Path: path, Error: m.formatter(e)})
+		*errs = append(*errs, jsonError{
+			Path:   path,
+			Error:  m.formatter(e),
+			Params: e.Params,
+		})
 	default:
-		*errs = append(*errs, jsonError{Path: path, Error: er.Error()})
+		*errs = append(*errs, jsonError{
+			Path:  path,
+			Error: er.Error(),
+		})
 	}
 }
