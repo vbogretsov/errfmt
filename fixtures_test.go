@@ -13,6 +13,7 @@ const (
 	eRequired        = "string cannot be blank"
 	eStartsUpperCase = "should start with upper case"
 	eEmail           = "invalid email"
+	eDuplicate       = "email in use"
 	eMinLen          = "should have at least %d characters"
 	eZipCode         = "should contain only letters"
 	ePwConfirmation  = "password confirmation does not math the password"
@@ -189,14 +190,14 @@ func startsUpperCase(v interface{}) error {
 }
 
 func email(v interface{}) error {
-	s := *(v.(*string))
-	if !strings.Contains(s, "@") {
+	s := v.(*string)
+	if !strings.Contains(*s, "@") {
 		return errors.New(eEmail)
 	}
 	return nil
 }
 
-func minlen(n int) validation.Rule {
+func minlen(n int) func(v interface{}) error {
 	return func(v interface{}) error {
 		s := *(v.(*string))
 		if len(s) < n {
@@ -216,14 +217,14 @@ func zipCode(v interface{}) error {
 	return nil
 }
 
-var addressRule, _ = validation.Struct(&Address{}, "", []validation.Field{
+var addressRule = validation.Struct(&Address{}, "", []validation.Field{
 	{
 		Attr: func(v interface{}) interface{} {
 			return &v.(*Address).Country
 		},
 		Rules: []validation.Rule{
-			stringRequired,
-			startsUpperCase,
+			validation.Func(stringRequired),
+			validation.Func(startsUpperCase),
 		},
 	},
 	{
@@ -231,34 +232,34 @@ var addressRule, _ = validation.Struct(&Address{}, "", []validation.Field{
 			return &v.(*Address).ZipCode
 		},
 		Rules: []validation.Rule{
-			stringRequired,
-			zipCode,
+			validation.Func(stringRequired),
+			validation.Func(zipCode),
 		},
 	},
 })
 
-var addressRuleGetAttrNotPtr, _ = validation.Struct(&Address{}, ``, []validation.Field{
+var addressRuleGetAttrNotPtr = validation.Struct(&Address{}, ``, []validation.Field{
 	{
 		Attr: func(v interface{}) interface{} {
 			return v.(*Address).Country
 		},
 		Rules: []validation.Rule{
-			stringRequired,
-			email,
+			validation.Func(stringRequired),
+			validation.Func(email),
 		},
 	},
 })
 
-var addressRuleValidatorPanic, _ = validation.Struct(&Address{}, ``, []validation.Field{
+var addressRuleValidatorPanic = validation.Struct(&Address{}, ``, []validation.Field{
 	{
 		Attr: func(v interface{}) interface{} {
 			return &v.(*Address).Country
 		},
 		Rules: []validation.Rule{
-			stringRequired,
-			func(v interface{}) error {
+			validation.Func(stringRequired),
+			validation.Func(func(v interface{}) error {
 				return validation.Panic{Err: errors.New("test panic")}
-			},
+			}),
 		},
 	},
 })
@@ -269,44 +270,112 @@ var errorFields = []validation.Field{
 			return &v.(*Address).Country
 		},
 		Rules: []validation.Rule{
-			func(v interface{}) error {
+			validation.Func(func(v interface{}) error {
 				return errors.New("test error")
-			},
+			}),
 		},
 	},
 }
 
-var userRule, _ = validation.Struct(&User{}, ``, []validation.Field{
+var userRule = validation.Struct(&User{}, ``, []validation.Field{
 	{
 		Attr: func(v interface{}) interface{} {
 			return &v.(*User).Email
 		},
-		Rules: []validation.Rule{stringRequired, email},
+		Rules: []validation.Rule{
+			validation.Func(stringRequired),
+			validation.Func(email),
+		},
 	},
 	{
 		Attr: func(v interface{}) interface{} {
 			return &v.(*User).Password
 		},
-		Rules: []validation.Rule{stringRequired, minlen(minLen)},
+		Rules: []validation.Rule{
+			validation.Func(stringRequired),
+			validation.Func(minlen(minLen)),
+		},
 	},
 	{
 		Attr: func(v interface{}) interface{} {
 			return v
 		},
 		Rules: []validation.Rule{
-			func(v interface{}) error {
+			validation.Func(func(v interface{}) error {
 				u := v.(*User)
 				if u.Password != u.PasswordConfirmation {
 					return errors.New(ePwConfirmation)
 				}
 				return nil
-			},
+			}),
 		},
 	},
 	{
 		Attr: func(v interface{}) interface{} {
 			return &v.(*User).Address
 		},
-		Rules: []validation.Rule{addressRule},
+		Rules: []validation.Rule{validation.Func(addressRule(nil))},
+	},
+})(nil)
+
+var usersDB = []string{"user1@mail.com", "user2@mail.com", "usermail.com"}
+
+func emailUniq(ctx interface{}) func(interface{}) error {
+	db := ctx.([]string)
+	return func(v interface{}) error {
+		s := v.(*string)
+		fmt.Println("STR:", *s)
+		fmt.Println("DB:", db)
+		for _, u := range db {
+			fmt.Println("ERROR")
+			if u == *s {
+				return errors.New(eDuplicate)
+			} else {
+				fmt.Printf("%s != %s\n", u, *s)
+			}
+		}
+		fmt.Println("EXIT")
+		return nil
+	}
+}
+
+var userRuleCtx = validation.Struct(&User{}, ``, []validation.Field{
+	{
+		Attr: func(v interface{}) interface{} {
+			return &v.(*User).Email
+		},
+		Rules: []validation.Rule{
+			validation.Func(email),
+			emailUniq,
+		},
 	},
 })
+
+var userRuleCtxFixtures = map[User]error{
+	User{Email: "user1@mail.com"}: validation.Errors([]error{
+		validation.StructError{
+			Field: "Email",
+			Errors: []error{
+				errors.New(eDuplicate),
+			},
+		},
+	}),
+	User{Email: "user1mail.com"}: validation.Errors([]error{
+		validation.StructError{
+			Field: "Email",
+			Errors: []error{
+				errors.New(eEmail),
+			},
+		},
+	}),
+	User{Email: "usermail.com"}: validation.Errors([]error{
+		validation.StructError{
+			Field: "Email",
+			Errors: []error{
+				errors.New(eEmail),
+				errors.New(eDuplicate),
+			},
+		},
+	}),
+	User{Email: "user3@mail.com"}: nil,
+}

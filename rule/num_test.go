@@ -14,7 +14,7 @@ func TestMin(t *testing.T) {
 	t.Run("Int", func(t *testing.T) {
 		msg := "ErrMin"
 		min := 10
-		fun := rule.Min(min, msg)
+		fun := rule.Min(min, msg)(nil)
 		exp := validation.Error{
 			Message: msg,
 			Params: validation.Params{
@@ -45,7 +45,7 @@ func TestMin(t *testing.T) {
 	t.Run("Uint", func(t *testing.T) {
 		msg := "ErrMin"
 		min := uint(10)
-		fun := rule.Min(min, msg)
+		fun := rule.Min(min, msg)(nil)
 		exp := validation.Error{
 			Message: msg,
 			Params: validation.Params{
@@ -76,7 +76,7 @@ func TestMin(t *testing.T) {
 	t.Run("Float", func(t *testing.T) {
 		msg := "ErrMin"
 		min := 10.0
-		fun := rule.Min(min, msg)
+		fun := rule.Min(min, msg)(nil)
 		exp := validation.Error{
 			Message: msg,
 			Params: validation.Params{
@@ -107,7 +107,7 @@ func TestMin(t *testing.T) {
 	t.Run("Time", func(t *testing.T) {
 		msg := "ErrMin"
 		min := time.Date(2018, 2, 9, 0, 0, 0, 0, time.Local)
-		fun := rule.Min(min, msg)
+		fun := rule.Min(min, msg)(nil)
 		exp := validation.Error{
 			Message: msg,
 			Params: validation.Params{
@@ -141,7 +141,7 @@ func TestMax(t *testing.T) {
 	t.Run("Int", func(t *testing.T) {
 		msg := "ErrMax"
 		max := 10
-		fun := rule.Max(max, msg)
+		fun := rule.Max(max, msg)(nil)
 		exp := validation.Error{
 			Message: msg,
 			Params: validation.Params{
@@ -172,7 +172,7 @@ func TestMax(t *testing.T) {
 	t.Run("Uint", func(t *testing.T) {
 		msg := "ErrMax"
 		max := uint(10)
-		fun := rule.Max(max, msg)
+		fun := rule.Max(max, msg)(nil)
 		exp := validation.Error{
 			Message: msg,
 			Params: validation.Params{
@@ -203,7 +203,7 @@ func TestMax(t *testing.T) {
 	t.Run("Float", func(t *testing.T) {
 		msg := "ErrMax"
 		max := 10.0
-		fun := rule.Max(max, msg)
+		fun := rule.Max(max, msg)(nil)
 		exp := validation.Error{
 			Message: msg,
 			Params: validation.Params{
@@ -234,7 +234,7 @@ func TestMax(t *testing.T) {
 	t.Run("Time", func(t *testing.T) {
 		msg := "ErrMax"
 		max := time.Date(2018, 2, 5, 0, 0, 0, 0, time.Local)
-		fun := rule.Max(max, msg)
+		fun := rule.Max(max, msg)(nil)
 		exp := validation.Error{
 			Message: msg,
 			Params: validation.Params{
@@ -269,7 +269,7 @@ func TestBetween(t *testing.T) {
 		msg := "ErrBetween"
 		a := 10
 		b := 20
-		fun := rule.Between(a, b, msg)
+		fun := rule.Between(a, b, msg)(nil)
 		exp := validation.Error{
 			Message: msg,
 			Params: validation.Params{
@@ -310,7 +310,7 @@ func TestBetween(t *testing.T) {
 		msg := "ErrBetween"
 		a := uint(10)
 		b := uint(20)
-		fun := rule.Between(a, b, msg)
+		fun := rule.Between(a, b, msg)(nil)
 		exp := validation.Error{
 			Message: msg,
 			Params: validation.Params{
@@ -351,7 +351,7 @@ func TestBetween(t *testing.T) {
 		msg := "ErrBetween"
 		a := 10.0
 		b := 20.0
-		fun := rule.Between(a, b, msg)
+		fun := rule.Between(a, b, msg)(nil)
 		exp := validation.Error{
 			Message: msg,
 			Params: validation.Params{
@@ -392,7 +392,7 @@ func TestBetween(t *testing.T) {
 		msg := "ErrBetween"
 		a := time.Date(2018, 1, 10, 0, 0, 0, 0, time.Local)
 		b := time.Date(2018, 1, 20, 0, 0, 0, 0, time.Local)
-		fun := rule.Between(a, b, msg)
+		fun := rule.Between(a, b, msg)(nil)
 		exp := validation.Error{
 			Message: msg,
 			Params: validation.Params{

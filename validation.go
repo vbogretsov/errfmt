@@ -11,7 +11,7 @@ var (
 )
 
 // Rule represents a validation function.
-type Rule func(interface{}) error
+type Rule func(interface{}) func(interface{}) error
 
 // Attr represents an attribute getter of a struct.
 type Attr func(interface{}) interface{}
@@ -22,22 +22,37 @@ type Field struct {
 	Rules []Rule
 }
 
+// Func creates a Rule from function.
+func Func(r func(interface{}) error) Rule {
+	return func(interface{}) func(interface{}) error { return r }
+}
+
 // Rules combines several rules into single one.
 func Rules(rules []Rule) Rule {
-	return func(v interface{}) error {
-		errs := []error{}
-		for _, rule := range rules {
-			if err := rule(v); err != nil {
-				if _, ok := err.(Panic); ok {
-					return err
+	return func(ctx interface{}) func(v interface{}) error {
+		return func(v interface{}) error {
+			errs := []error{}
+			for _, rule := range rules {
+				if err := rule(ctx)(v); err != nil {
+					if _, ok := err.(Panic); ok {
+						return err
+					}
+					errs = append(errs, err)
 				}
-				errs = append(errs, err)
 			}
+			if len(errs) > 0 {
+				return Errors(errs)
+			}
+			return nil
 		}
-		if len(errs) > 0 {
-			return Errors(errs)
+	}
+}
+
+func panicRule(err error) Rule {
+	return func(interface{}) func(interface{}) error {
+		return func(interface{}) error {
+			return err
 		}
-		return nil
 	}
 }
 
@@ -47,15 +62,15 @@ type structRule struct {
 }
 
 // Struct struct validation rule.
-func Struct(v interface{}, tag string, fields []Field) (Rule, error) {
+func Struct(v interface{}, tag string, fields []Field) Rule {
 	tp := reflect.TypeOf(v)
 	if tp.Kind() != reflect.Ptr {
-		return nil, errorArgs
+		return panicRule(errorArgs)
 	}
 
 	tp = tp.Elem()
 	if tp.Kind() != reflect.Struct {
-		return nil, errorArgs
+		return panicRule(errorArgs)
 	}
 
 	ftab := map[uintptr]string{}
@@ -77,60 +92,62 @@ func Struct(v interface{}, tag string, fields []Field) (Rule, error) {
 		fields: fields,
 	}
 
-	return s.validate, nil
+	return s.validate
 }
 
-func (s structRule) validate(v interface{}) error {
-	tp := reflect.TypeOf(v)
-	if tp.Kind() != reflect.Ptr {
-		return errorArgs
-	}
-
-	tp = tp.Elem()
-	if tp.Kind() != reflect.Struct {
-		return errorArgs
-	}
-
-	self := reflect.ValueOf(v).Pointer()
-
-	errs := []error{}
-	for _, f := range s.fields {
-		attr := f.Attr(v)
-
-		fv := reflect.ValueOf(attr)
-		if fv.Kind() != reflect.Ptr {
-			return errorAttr
+func (s structRule) validate(ctx interface{}) func(interface{}) error {
+	return func(v interface{}) error {
+		tp := reflect.TypeOf(v)
+		if tp.Kind() != reflect.Ptr {
+			return errorArgs
 		}
 
-		name := ""
-		if attr != v {
-			name = s.ftab[fv.Pointer()-self]
+		tp = tp.Elem()
+		if tp.Kind() != reflect.Struct {
+			return errorArgs
 		}
 
-		fe := []error{}
-		for _, rule := range f.Rules {
-			if err := rule(attr); err != nil {
-				if _, ok := err.(Panic); ok {
-					return err
-				}
-				if e, ok := err.(Errors); ok {
-					for _, i := range e {
-						fe = append(fe, i)
+		self := reflect.ValueOf(v).Pointer()
+
+		errs := []error{}
+		for _, f := range s.fields {
+			attr := f.Attr(v)
+
+			fv := reflect.ValueOf(attr)
+			if fv.Kind() != reflect.Ptr {
+				return errorAttr
+			}
+
+			name := ""
+			if attr != v {
+				name = s.ftab[fv.Pointer()-self]
+			}
+
+			fe := []error{}
+			for _, rule := range f.Rules {
+				if err := rule(ctx)(attr); err != nil {
+					if _, ok := err.(Panic); ok {
+						return err
 					}
-				} else {
-					fe = append(fe, err)
+					if e, ok := err.(Errors); ok {
+						for _, i := range e {
+							fe = append(fe, i)
+						}
+					} else {
+						fe = append(fe, err)
+					}
 				}
+			}
+
+			if len(fe) > 0 {
+				errs = append(errs, StructError{Field: name, Errors: fe})
 			}
 		}
 
-		if len(fe) > 0 {
-			errs = append(errs, StructError{Field: name, Errors: fe})
+		if len(errs) > 0 {
+			return Errors(errs)
 		}
-	}
 
-	if len(errs) > 0 {
-		return Errors(errs)
+		return nil
 	}
-
-	return nil
 }

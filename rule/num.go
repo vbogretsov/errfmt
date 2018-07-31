@@ -18,29 +18,29 @@ var (
 )
 
 func int64rule(fn func(int64) error) validation.Rule {
-	return func(v interface{}) error {
+	return wrap(func(v interface{}) error {
 		switch x := v.(type) {
 		case *int:
 			return fn(int64(*x))
 		default:
 			return unexpectedType(v)
 		}
-	}
+	})
 }
 
 func uint64rule(fn func(uint64) error) validation.Rule {
-	return func(v interface{}) error {
+	return wrap(func(v interface{}) error {
 		switch x := v.(type) {
 		case *uint:
 			return fn(uint64(*x))
 		default:
 			return unexpectedType(v)
 		}
-	}
+	})
 }
 
 func float64rule(fn func(v float64) error) validation.Rule {
-	return func(v interface{}) error {
+	return wrap(func(v interface{}) error {
 		switch x := v.(type) {
 		case *float32:
 			return fn(float64(*x))
@@ -49,17 +49,17 @@ func float64rule(fn func(v float64) error) validation.Rule {
 		default:
 			return unexpectedType(v)
 		}
-	}
+	})
 }
 
 func timerule(fn func(time.Time) error) validation.Rule {
-	return func(v interface{}) error {
+	return wrap(func(v interface{}) error {
 		t, ok := v.(*time.Time)
 		if !ok {
 			return unexpectedType(v)
 		}
 		return fn(*t)
-	}
+	})
 }
 
 func errorMin(min interface{}, msg string) validation.Error {
@@ -135,7 +135,7 @@ func Min(min interface{}, msg string) validation.Rule {
 			return nil
 		})
 	default:
-		return func(v interface{}) error { return unexpectedType(min) }
+		return wrap(func(v interface{}) error { return unexpectedType(min) })
 	}
 }
 
@@ -184,7 +184,7 @@ func Max(max interface{}, msg string) validation.Rule {
 			return nil
 		})
 	default:
-		return func(v interface{}) error { return unexpectedType(max) }
+		return wrap(func(v interface{}) error { return unexpectedType(max) })
 	}
 }
 
@@ -194,9 +194,9 @@ func Between(a, b interface{}, msg string) validation.Rule {
 	tb := reflect.TypeOf(b)
 
 	if ta != tb {
-		return func(v interface{}) error {
+		return wrap(func(v interface{}) error {
 			return validation.Panic{Err: eTypeMismatch}
-		}
+		})
 	}
 
 	switch a.(type) {
@@ -241,6 +241,6 @@ func Between(a, b interface{}, msg string) validation.Rule {
 			return nil
 		})
 	default:
-		return func(v interface{}) error { return unexpectedType(v) }
+		return wrap(func(v interface{}) error { return unexpectedType(v) })
 	}
 }

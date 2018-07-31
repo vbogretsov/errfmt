@@ -3,16 +3,15 @@ package validation_test
 import (
 	"errors"
 	"fmt"
-	"reflect"
 	"testing"
 
-	"github.com/kr/pretty"
+	"github.com/stretchr/testify/require"
 
 	"github.com/vbogretsov/go-validation"
 )
 
 func checkFieldName(tag, field string) error {
-	validate, _ := validation.Struct(&Address{}, tag, errorFields)
+	validate := validation.Struct(&Address{}, tag, errorFields)(nil)
 
 	err := validate(&Address{})
 	if err == nil {
@@ -28,7 +27,7 @@ func checkFieldName(tag, field string) error {
 }
 
 func checkValidatePanics(validate validation.Rule, v interface{}) error {
-	err := validate(v)
+	err := validate(nil)(v)
 	if err == nil {
 		return errors.New("expected error but got nil")
 	}
@@ -40,34 +39,26 @@ func checkValidatePanics(validate validation.Rule, v interface{}) error {
 
 func TestStruct(t *testing.T) {
 	t.Run("ErrorIfNotPtr", func(t *testing.T) {
-		_, err := validation.Struct(Address{}, ``, []validation.Field{})
-		if err == nil {
-			t.Error("expected error but got nil")
-		}
+		v := validation.Struct(Address{}, ``, []validation.Field{})(nil)
+		x := 10
+		require.Error(t, v(&x))
 	})
 	t.Run("ErrorIfNotStruct", func(t *testing.T) {
-		_, err := validation.Struct(&[]int{}, ``, []validation.Field{})
-		if err == nil {
-			t.Error("expected error but got nil")
-		}
+		v := validation.Struct(&[]int{}, ``, []validation.Field{})(nil)
+		x := 10
+		require.Error(t, v(&x))
 	})
 }
 
 func TestStructFieldName(t *testing.T) {
 	t.Run("FieldNameIfTagEmpty", func(t *testing.T) {
-		if err := checkFieldName("", "Country"); err != nil {
-			t.Error(err)
-		}
+		require.NoError(t, checkFieldName("", "Country"))
 	})
 	t.Run("TagIfTagNotEmpty", func(t *testing.T) {
-		if err := checkFieldName("json", "country"); err != nil {
-			t.Error(err)
-		}
+		require.NoError(t, checkFieldName("json", "country"))
 	})
 	t.Run("FieldNameIfTagNotFound", func(t *testing.T) {
-		if err := checkFieldName("xxx", "Country"); err != nil {
-			t.Error(err)
-		}
+		require.NoError(t, checkFieldName("xxx", "Country"))
 	})
 }
 
@@ -98,45 +89,45 @@ func TestStructValidate(t *testing.T) {
 
 	for k, v := range addressFixtures {
 		t.Run("ValidateAddress", func(t *testing.T) {
-			err := addressRule(&k)
-			if !reflect.DeepEqual(err, v) {
-				t.Error(pretty.Diff(err, v))
-			}
+			err := addressRule(nil)(&k)
+			require.Equal(t, v, err)
 		})
 	}
 
 	for k, v := range userFixtures {
 		t.Run("ValidateUser", func(t *testing.T) {
 			err := userRule(&k)
-			if !reflect.DeepEqual(err, v) {
-				t.Error(pretty.Diff(err, v))
-			}
+			require.Equal(t, v, err)
 		})
 	}
 }
 
 func TestRulesValidate(t *testing.T) {
-	fun := validation.Rules([]validation.Rule{stringRequired, email})
+	fun := validation.Rules([]validation.Rule{
+		validation.Func(stringRequired),
+		validation.Func(email),
+	})(nil)
 
 	t.Run("TestPanicIfRulePanics", func(t *testing.T) {
 		exp := validation.Panic{Err: eEpxectedStrPtr}
 		act := fun("123")
-		if !reflect.DeepEqual(exp, act) {
-			t.Error(pretty.Diff(exp, act))
-		}
+		require.Equal(t, exp, act)
 	})
 	t.Run("TestErrorIfRuleFails", func(t *testing.T) {
 		exp := validation.Errors([]error{errors.New(eEmail)})
 		v := "user"
 		act := fun(&v)
-		if !reflect.DeepEqual(exp, act) {
-			t.Error(pretty.Diff(exp, act))
-		}
+		require.Equal(t, exp, act)
 	})
 	t.Run("TestOkIfRulesOk", func(t *testing.T) {
 		v := "user@mail.com"
-		if err := fun(&v); err != nil {
-			t.Errorf("expected error but got nil: %v", err)
-		}
+		require.NoError(t, fun(&v))
 	})
+}
+
+func TestCtxValidation(t *testing.T) {
+	for u, e := range userRuleCtxFixtures {
+		err := userRuleCtx(usersDB)(&u)
+		require.Equal(t, e, err)
+	}
 }

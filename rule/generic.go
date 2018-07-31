@@ -18,9 +18,15 @@ func unexpectedType(v interface{}) validation.Panic {
 	}
 }
 
+func wrap(r func(interface{}) error) validation.Rule {
+	return func(interface{}) func(interface{}) error {
+		return r
+	}
+}
+
 // NotNil creates validator to check whether a value is nil.
 func NotNil(msg string) validation.Rule {
-	return func(v interface{}) error {
+	return wrap(func(v interface{}) error {
 		t := reflect.TypeOf(v)
 		if t.Kind() != reflect.Ptr {
 			return unexpectedType(v)
@@ -42,7 +48,7 @@ func NotNil(msg string) validation.Rule {
 		}
 
 		return nil
-	}
+	})
 }
 
 // In creates a validator to chech wheter an item belongs to the set provided.
@@ -52,7 +58,7 @@ func In(values []interface{}, msg string) validation.Rule {
 		set[v] = true
 	}
 
-	return func(v interface{}) error {
+	return wrap(func(v interface{}) error {
 		vl := reflect.ValueOf(v)
 		if vl.Type().Kind() != reflect.Ptr {
 			return unexpectedType(v)
@@ -67,5 +73,5 @@ func In(values []interface{}, msg string) validation.Rule {
 			}}
 		}
 		return nil
-	}
+	})
 }

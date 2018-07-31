@@ -14,7 +14,7 @@ func TestSliceLen(t *testing.T) {
 	min := 2
 	max := 8
 	msg := "ErrLen"
-	fun := rule.SliceLen(min, max, msg)
+	fun := rule.SliceLen(min, max, msg)(nil)
 	exp := validation.Error{
 		Message: msg,
 		Params: validation.Params{
@@ -56,7 +56,7 @@ func TestSliceLen(t *testing.T) {
 func TestSliceMinLen(t *testing.T) {
 	min := 2
 	msg := "ErrMinLen"
-	fun := rule.SliceMinLen(min, msg)
+	fun := rule.SliceMinLen(min, msg)(nil)
 	exp := validation.Error{
 		Message: msg,
 		Params: validation.Params{
@@ -88,7 +88,7 @@ func TestSliceMinLen(t *testing.T) {
 func TestSliceMaxLen(t *testing.T) {
 	max := 8
 	msg := "len must be not great than %d"
-	fun := rule.SliceMaxLen(max, msg)
+	fun := rule.SliceMaxLen(max, msg)(nil)
 	exp := validation.Error{
 		Message: msg,
 		Params: validation.Params{
@@ -120,15 +120,17 @@ func TestSliceMaxLen(t *testing.T) {
 func TestSliceEach(t *testing.T) {
 	t.Run("PanicIfValidatorPanics", func(t *testing.T) {
 		failed := rule.SliceEach(userIter, []validation.Rule{
-			func(v interface{}) error {
-				return validation.Panic{Err: errors.New("test")}
+			func(interface{}) func(interface{}) error {
+				return func(v interface{}) error {
+					return validation.Panic{Err: errors.New("test")}
+				}
 			},
-		})
+		})(nil)
 		v := []User{{}}
 		assertPanic(t, failed(&v))
 	})
 
-	fun := rule.SliceEach(userIter, []validation.Rule{userRule})
+	fun := rule.SliceEach(userIter, []validation.Rule{userRule})(nil)
 
 	t.Run("PanicIfNotPtr", func(t *testing.T) {
 		assertPanic(t, fun(10))
@@ -147,11 +149,11 @@ func TestSliceEach(t *testing.T) {
 
 func TestSliceUnique(t *testing.T) {
 	t.Run("PanicIfItemNotPtr", func(t *testing.T) {
-		r := rule.SliceUnique(userInvalidIter, eDuplicate)
+		r := rule.SliceUnique(userInvalidIter, eDuplicate)(nil)
 		assertPanic(t, r(&users))
 	})
 
-	fun := rule.SliceUnique(userIter, eDuplicate)
+	fun := rule.SliceUnique(userIter, eDuplicate)(nil)
 
 	t.Run("PanicIfNotPtr", func(t *testing.T) {
 		assertPanic(t, fun(10))

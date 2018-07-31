@@ -28,7 +28,7 @@ func assertPanic(t *testing.T, err error) {
 	}
 }
 
-var userRule, _ = validation.Struct(&User{}, "", []validation.Field{
+var userRule = validation.Struct(&User{}, "", []validation.Field{
 	{
 		Attr: func(v interface{}) interface{} {
 			return &v.(*User).Email

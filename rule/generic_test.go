@@ -11,7 +11,7 @@ import (
 
 func TestNotNil(t *testing.T) {
 	msg := "ErrNil"
-	fun := rule.NotNil(msg)
+	fun := rule.NotNil(msg)(nil)
 
 	t.Run("PanicIfInvalidType", func(t *testing.T) {
 		assertPanic(t, fun(10))
@@ -34,7 +34,7 @@ func TestNotNil(t *testing.T) {
 func TestIn(t *testing.T) {
 	msg := "ErrUnsupported"
 	set := []interface{}{"a1", "b2", "c3"}
-	fun := rule.In(set, msg)
+	fun := rule.In(set, msg)(nil)
 
 	t.Run("PanicIfInvalidType", func(t *testing.T) {
 		assertPanic(t, fun("xxx"))

@@ -36,13 +36,13 @@ var (
 )
 
 func strrule(fn func(*string) error) validation.Rule {
-	return func(v interface{}) error {
+	return wrap(func(v interface{}) error {
 		s, ok := v.(*string)
 		if !ok {
 			return unexpectedType(v)
 		}
 		return fn(s)
-	}
+	})
 }
 
 func fromfn(fn func(string) bool) func(string) validation.Rule {

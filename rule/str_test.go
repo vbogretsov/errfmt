@@ -11,7 +11,7 @@ import (
 
 func TestStrRequired(t *testing.T) {
 	msg := "ErrBlank"
-	fun := rule.StrRequired(msg)
+	fun := rule.StrRequired(msg)(nil)
 	exp := validation.Error{Message: msg}
 
 	t.Run("PanicIfInvalidType", func(t *testing.T) {
@@ -31,7 +31,7 @@ func TestStrLen(t *testing.T) {
 	min := 2
 	max := 8
 	msg := "ErrLen"
-	fun := rule.StrLen(min, max, msg)
+	fun := rule.StrLen(min, max, msg)(nil)
 	exp := validation.Error{
 		Message: msg,
 		Params: validation.Params{
@@ -68,7 +68,7 @@ func TestStrLen(t *testing.T) {
 func TestStrMinLen(t *testing.T) {
 	min := 2
 	msg := "ErrMinLen"
-	fun := rule.StrMinLen(min, msg)
+	fun := rule.StrMinLen(min, msg)(nil)
 	exp := validation.Error{
 		Message: msg,
 		Params: validation.Params{
@@ -96,7 +96,7 @@ func TestStrMinLen(t *testing.T) {
 func TestStrMaxLen(t *testing.T) {
 	max := 8
 	msg := "ErrMinLen"
-	fun := rule.StrMaxLen(max, msg)
+	fun := rule.StrMaxLen(max, msg)(nil)
 	exp := validation.Error{
 		Message: msg,
 		Params: validation.Params{
@@ -123,7 +123,7 @@ func TestStrMaxLen(t *testing.T) {
 
 func TestStrMatch(t *testing.T) {
 	msg := "ErrMatch"
-	fun := rule.StrMatch(regexp.MustCompile(`\d+`), msg)
+	fun := rule.StrMatch(regexp.MustCompile(`\d+`), msg)(nil)
 	exp := validation.Error{Message: msg}
 
 	t.Run("PanicIfInvalidType", func(t *testing.T) {
