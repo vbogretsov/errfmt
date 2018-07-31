@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 	"unicode"
+	"unsafe"
 
 	"github.com/vbogretsov/go-validation"
 )
@@ -16,6 +17,7 @@ const (
 	eMinLen          = "should have at least %d characters"
 	eZipCode         = "should contain only letters"
 	ePwConfirmation  = "password confirmation does not math the password"
+	eUserExists      = "user exists"
 	minLen           = 10
 )
 
@@ -35,6 +37,13 @@ type User struct {
 	PasswordConfirmation string
 	Address              Address
 }
+
+type EmailCtx struct {
+	Email string
+	InUse []string
+}
+
+var users = []string{"user1@mail.com", "user2@mail.com"}
 
 var (
 	addressFixtures = map[Address]error{
@@ -104,7 +113,6 @@ var (
 			validation.StructError{
 				Field: "Address",
 				Errors: []error{
-
 					validation.StructError{
 						Field: "Country",
 						Errors: []error{
@@ -167,6 +175,27 @@ var (
 			},
 		}),
 	}
+
+	userCtxFixtures = map[User]error{
+		User{
+			Email:    "user1@mail.com",
+			Password: "123456",
+		}: validation.Errors([]error{
+			validation.StructError{
+				Field:  "Email",
+				Errors: []error{errors.New(eUserExists)},
+			},
+		}),
+		User{
+			Email:    "user1mail.com",
+			Password: "123456",
+		}: validation.Errors([]error{
+			validation.StructError{
+				Field:  "Email",
+				Errors: []error{errors.New(eEmail)},
+			},
+		}),
+	}
 )
 
 func stringRequired(v interface{}) error {
@@ -213,6 +242,21 @@ func zipCode(v interface{}) error {
 			return errors.New(eZipCode)
 		}
 	}
+	return nil
+}
+
+func emailUniq(v interface{}) error {
+	ptr := v.(*string)
+	ctx := (*EmailCtx)(unsafe.Pointer(ptr))
+
+	fmt.Println(ctx)
+
+	for _, s := range ctx.InUse {
+		if s == ctx.Email {
+			return errors.New(eUserExists)
+		}
+	}
+
 	return nil
 }
 
@@ -308,5 +352,21 @@ var userRule, _ = validation.Struct(&User{}, ``, []validation.Field{
 			return &v.(*User).Address
 		},
 		Rules: []validation.Rule{addressRule},
+	},
+})
+
+var userCtxRule, _ = validation.Struct(&User{}, ``, []validation.Field{
+	{
+		Attr: func(v interface{}) interface{} {
+			ctx := validation.Context{
+				Ptr: &v.(*User).Email,
+				Ctx: (*string)(unsafe.Pointer(&EmailCtx{
+					Email: v.(*User).Email,
+					InUse: users,
+				})),
+			}
+			return ctx
+		},
+		Rules: []validation.Rule{email, emailUniq},
 	},
 })

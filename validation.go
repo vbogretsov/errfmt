@@ -16,6 +16,15 @@ type Rule func(interface{}) error
 // Attr represents an attribute getter of a struct.
 type Attr func(interface{}) interface{}
 
+// Context represents additional info that can be required for custom
+// validation scenarios. The member Ptr contains pointer the value to be
+// validated. The member Ctx contains additional information required for
+// validation (e.g. database connection).
+type Context struct {
+	Ptr interface{}
+	Ctx interface{}
+}
+
 // Field represents a schema field.
 type Field struct {
 	Attr  Attr
@@ -91,25 +100,18 @@ func (s structRule) validate(v interface{}) error {
 		return errorArgs
 	}
 
-	self := reflect.ValueOf(v).Pointer()
-
 	errs := []error{}
 	for _, f := range s.fields {
 		attr := f.Attr(v)
 
-		fv := reflect.ValueOf(attr)
-		if fv.Kind() != reflect.Ptr {
-			return errorAttr
-		}
-
-		name := ""
-		if attr != v {
-			name = s.ftab[fv.Pointer()-self]
+		name, value, err := s.nameOf(v, attr)
+		if err != nil {
+			return err
 		}
 
 		fe := []error{}
 		for _, rule := range f.Rules {
-			if err := rule(attr); err != nil {
+			if err := rule(value); err != nil {
 				if _, ok := err.(Panic); ok {
 					return err
 				}
@@ -133,4 +135,29 @@ func (s structRule) validate(v interface{}) error {
 	}
 
 	return nil
+}
+
+func (s structRule) nameOf(self, member interface{}) (string, interface{}, error) {
+	var name string
+	var ptr interface{}
+	var val interface{}
+
+	if ctx, ok := member.(Context); ok {
+		ptr = ctx.Ptr
+		val = ctx.Ctx
+	} else {
+		ptr = member
+		val = member
+	}
+
+	fv := reflect.ValueOf(ptr)
+	if fv.Kind() != reflect.Ptr {
+		return name, nil, errorAttr
+	}
+
+	if ptr != self {
+		name = s.ftab[fv.Pointer()-reflect.ValueOf(self).Pointer()]
+	}
+
+	return name, val, nil
 }

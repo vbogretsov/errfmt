@@ -6,10 +6,14 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/kr/pretty"
 
 	"github.com/vbogretsov/go-validation"
 )
+
+// TODO: use require package for assertions.
 
 func checkFieldName(tag, field string) error {
 	validate, _ := validation.Struct(&Address{}, tag, errorFields)
@@ -41,15 +45,11 @@ func checkValidatePanics(validate validation.Rule, v interface{}) error {
 func TestStruct(t *testing.T) {
 	t.Run("ErrorIfNotPtr", func(t *testing.T) {
 		_, err := validation.Struct(Address{}, ``, []validation.Field{})
-		if err == nil {
-			t.Error("expected error but got nil")
-		}
+		require.NotNil(t, err, "expected error but got nil")
 	})
 	t.Run("ErrorIfNotStruct", func(t *testing.T) {
 		_, err := validation.Struct(&[]int{}, ``, []validation.Field{})
-		if err == nil {
-			t.Error("expected error but got nil")
-		}
+		require.NotNil(t, err, "expected error but got nil")
 	})
 }
 
@@ -111,6 +111,15 @@ func TestStructValidate(t *testing.T) {
 			if !reflect.DeepEqual(err, v) {
 				t.Error(pretty.Diff(err, v))
 			}
+		})
+	}
+}
+
+func TestValidateStructWithCtx(t *testing.T) {
+	for u, e := range userCtxFixtures {
+		t.Run("ValidateCtx", func(t *testing.T) {
+			err := userCtxRule(&u)
+			require.Equal(t, e, err)
 		})
 	}
 }
